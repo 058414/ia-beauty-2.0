@@ -1,0 +1,51 @@
+<claude-code-hint v="1" type="plugin" value="vercel@claude-plugins-official" />
+
+  Set up "~\ia-beauty-2.0-novo"
+Loading teams…
+Searching for existing projects…
+  Local settings detected in vercel.json:
+  Build Command: echo 'Static site - no build needed'
+  Output Directory: .
+  Detected Node (Output Directory: N/A)
+  Linked      brunno-alves-projects/ia-beauty-2.0-novo
+> Connecting GitHub repository: https://github.com/058414/ia-beauty-2.0
+> Connected
+Deploying brunno-alves-projects/ia-beauty-2.0-novo
+Uploading [--------------------] (0.0B/1.1MB)
+Uploading [=====---------------] (272.2KB/1.1MB)
+Uploading [==========----------] (554.5KB/1.1MB)
+Uploading [===============-----] (826.5KB/1.1MB)
+Uploading [====================] (1.1MB/1.1MB)
+  Inspect     https://vercel.com/brunno-alves-projects/ia-beauty-2.0-novo/D3VnGDFapVvN8THnPQ7BfyjcZNBr
+▲ Production  https://ia-beauty-20-novo-407vfhxkb-brunno-alves-projects.vercel.app
+Building…
+Building…
+Running build in Washington, D.C., USA (East) – iad1
+Build machine configuration: 2 cores, 8 GB
+Retrieving list of deployment files...
+Previous build caches not available.
+Downloading 59 deployment files...
+Running "vercel build"
+Vercel CLI 54.4.1
+Installing dependencies...
+{
+  "status": "error",
+  "reason": "deploy_failed",
+  "message": "Build failed with 1 error:\n\n\u001b[31m[PARSE_ERROR] Error:\u001b[0m Unexpected token\n   \u001b[38;5;246m╭\u001b[0m\u001b[38;5;246m─\u001b[0m\u001b[38;5;246m[\u001b[0m index.html:1:1 \u001b[38;5;246m]\u001b[0m\n   \u001b[38;5;246m│\u001b[0m\n \u001b[38;5;246m1 │\u001b[0m <\u001b[38;5;249m!\u001b[0m\u001b[38;5;249mD\u001b[0m\u001b[38;5;249mO\u001b[0m\u001b[38;5;249mC\u001b[0m\u001b[38;5;249mT\u001b[0m\u001b[38;5;249mY\u001b[0m\u001b[38;5;249mP\u001b[0m\u001b[38;5;249mE\u001b[0m\u001b[38;5;249m \u001b[0m\u001b[38;5;249mh\u001b[0m\u001b[38;5;249mt\u001b[0m\u001b[38;5;249mm\u001b[0m\u001b[38;5;249ml\u001b[0m\u001b[38;5;249m>\u001b[0m\n \u001b[38;5;240m  │\u001b[0m ┬  \n \u001b[38;5;240m  │\u001b[0m ╰── \n\u001b[38;5;246m───╯\u001b[0m\n",
+  "next": [
+    {
+      "command": "vercel deploy",
+      "when": "retry deploy"
+    }
+  ]
+}
+Error: Build failed with 1 error:
+
+[31m[PARSE_ERROR] Error:[0m Unexpected token
+   [38;5;246m╭[0m[38;5;246m─[0m[38;5;246m[[0m index.html:1:1 [38;5;246m][0m
+   [38;5;246m│[0m
+ [38;5;246m1 │[0m <[38;5;249m![0m[38;5;249mD[0m[38;5;249mO[0m[38;5;249mC[0m[38;5;249mT[0m[38;5;249mY[0m[38;5;249mP[0m[38;5;249mE[0m[38;5;249m [0m[38;5;249mh[0m[38;5;249mt[0m[38;5;249mm[0m[38;5;249ml[0m[38;5;249m>[0m
+ [38;5;240m  │[0m ┬  
+ [38;5;240m  │[0m ╰── 
+[38;5;246m───╯[0m
+
