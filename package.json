@@ -4,9 +4,7 @@
   "description": "Inteligência Visual da Sua Imagem - Análise Facial Personalizada & Recomendação de Corte de Cabelo",
   "main": "index.html",
   "scripts": {
-    "dev": "python -m http.server 3000",
-    "build": "echo 'Static site - no build step'",
-    "deploy": "echo 'Deploy to Vercel via GitHub'"
+    "dev": "python -m http.server 3000"
   },
   "keywords": [
     "visagismo",
