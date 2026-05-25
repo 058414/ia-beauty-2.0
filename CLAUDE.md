@@ -2,10 +2,34 @@
 
 ## ✅ Status do Projeto
 
-- **Status:** 🔄 Fase 2 EM DESENVOLVIMENTO — Q1 Completo + Q2 Implementado
-- **Última atualização:** 2026-05-25 (Noite)
-- **Commit:** 6a0af10 (Q2 Gola+Adereços + Volume de Informação + Bridge Sobrancelhas)
+- **Status:** 🔴 Q1 PAUSADO — Problema com máscara facial (círculo branco pequeno)
+- **Última atualização:** 2026-05-25 (Noite - SESSÃO INTERROMPIDA)
+- **Commit:** c311b3e (Remove distorted mask scales - use natural MediaPipe points)
 - **URL Produção:** https://ia-beauty-20-aoyaclpx8-brunno-alves-projects.vercel.app
+- **Problema:** Máscara facial detectando com escalas distorcidas, causando círculo pequeno no centro do rosto
+- **Tentativas:** Múltiplas ajustes de proporção (2.4:1, escalas X/Y diferentes) — nenhuma funcionou corretamente
+
+### 🔴 PRÓXIMA SESSÃO - COMO RETOMAR
+
+**Problema Principal:**
+- Máscara facial do MediaPipe está desenhando um círculo pequeno BRANCO no meio do rosto
+- Isso sobrepõe os elementos faciais (olhos, nariz, boca)
+- Problema está em `lib/camera.js` → função `desenharMascara()` → linhas 260-297
+
+**Solução a Implementar:**
+1. A máscara está usando o contorno padrão `FACE_OVAL` (36 pontos)
+2. Esses pontos precisam ser escalados/posicionados baseado no BOUNDING BOX REAL do rosto detectado
+3. NÃO aplicar escalas diferentes para X e Y (causa distorção)
+4. Testar a imagem `C:\Users\Usuário\Desktop\IA BEAUT\PQP.jpeg` (rosto do Bruno) para validar
+
+**Código Referência:**
+- Usar MediaPipe FaceLandmarker (468 pontos) para detectar bounding box real
+- Aplicar transformação UNIFORME ao contorno oval
+- Sincronizar olhos, nariz, boca com a mesma transformação
+
+**Arquivo Principal:** `C:\Users\Usuário\ia-beauty-2.0-novo\lib\camera.js`
+
+---
 
 ### Implementações de hoje (Sessão 25/05 - Noite):
 
