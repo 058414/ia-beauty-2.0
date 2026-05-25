@@ -1,0 +1,1349 @@
+<!DOCTYPE html>
+<!-- Deployed via GitHub Auto-Deploy ✨ -->
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+<title>IA Beauty — Protocolo de Compensação Visual</title>
+<style>
+:root {
+  --color-primary: #C4973A;
+  --color-accent1: #E85D9F;
+  --color-accent2: #6DD5ED;
+  --color-accent3: #A78BFA;
+  --color-accent4: #EC4899;
+
+  --bg-dark: #0a0a0a;
+  --bg-darker: #000;
+  --bg-card: #111;
+  --bg-hover: #1a1a1a;
+
+  --text-primary: #f0f0f0;
+  --text-secondary: #bbb;
+  --text-muted: #888;
+
+  --border-dark: #222;
+  --border-lighter: #333;
+}
+
+* { box-sizing: border-box; margin: 0; padding: 0; }
+
+body {
+  background: linear-gradient(135deg, var(--bg-dark) 0%, #0f0510 50%, #0a0a15 100%);
+  color: var(--text-primary);
+  font-family: 'Poppins', 'Geogria', 'Segoe UI', system-ui, sans-serif;
+  font-weight: 300;
+  letter-spacing: 0.3px;
+  min-height: 100vh; display: flex; flex-direction: column; align-items: center;
+}
+
+header {
+  width: 100%; padding: 14px 20px;
+  background: linear-gradient(90deg, #111 0%, #0d0510 50%, #111 100%);
+  border-bottom: 1px solid var(--border-dark);
+  text-align: center;
+  box-shadow: 0 4px 12px rgba(196, 151, 58, 0.1);
+}
+header h1 {
+  font-size: 1.3rem;
+  background: linear-gradient(90deg, #C4973A, #E85D9F, #6DD5ED);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+  letter-spacing: 3px; font-weight: 700;
+}
+header p  { font-size: 0.7rem; color: var(--text-muted); margin-top: 3px; letter-spacing: 1px; }
+
+.section { width: 100%; max-width: 480px; padding: 16px 16px 32px; display: none; }
+.section.active { display: block; }
+
+/* ── CÂMERA ── */
+#camera-wrap {
+  position: relative; width: 100%; aspect-ratio: 3/4;
+  background: #000; border-radius: 16px; overflow: hidden;
+  margin-bottom: 14px; border: 1.5px solid #1a1a1a;
+}
+
+#video {
+  width: 100%; height: 100%; object-fit: cover;
+  transform: scaleX(-1); display: block;
+}
+
+/* Canvas da máscara — cobre todo o wrap */
+#mask-canvas {
+  position: absolute; inset: 0;
+  width: 100%; height: 100%;
+  pointer-events: none;
+}
+
+/* Cruz de centralização */
+#cross-h, #cross-v {
+  position: absolute; pointer-events: none;
+  transition: opacity 0.5s;
+}
+#cross-h { left: 8%; right: 8%; top: 50%; height: 1px; background: rgba(255,255,255,0.25); }
+#cross-v { top: 8%; bottom: 8%; left: 50%; width: 1px; background: rgba(255,255,255,0.25); }
+#cross-dot {
+  position: absolute; left: 50%; top: 50%;
+  width: 8px; height: 8px; border-radius: 50%;
+  border: 1px solid rgba(255,255,255,0.4);
+  transform: translate(-50%,-50%); pointer-events: none;
+  transition: opacity 0.5s;
+}
+.hide { opacity: 0 !important; }
+
+/* Countdown */
+#countdown-overlay {
+  position: absolute; inset: 0;
+  display: flex; align-items: center; justify-content: center;
+  pointer-events: none; opacity: 0; transition: opacity 0.2s;
+}
+#countdown-overlay.visible { opacity: 1; }
+#countdown-num {
+  font-size: 7rem; font-weight: 900; color: #fff;
+  text-shadow: 0 0 20px #E85D9F, 0 0 50px rgba(232, 93, 159, 0.3);
+  animation: numPop 0.4s ease-out;
+}
+@keyframes numPop { from { transform: scale(1.5); opacity: 0.5; } to { transform: scale(1); opacity: 1; } }
+
+/* Flash */
+#flash {
+  position: absolute; inset: 0; background: #fff; opacity: 0;
+  pointer-events: none; border-radius: 14px;
+}
+#flash.bang { animation: flashOut 0.45s ease-out forwards; }
+@keyframes flashOut { 0% { opacity: 1; } 100% { opacity: 0; } }
+
+/* Status */
+#status-text {
+  text-align: center; font-size: 0.82rem; color: #888;
+  min-height: 20px; margin-bottom: 12px;
+  transition: color 0.3s; letter-spacing: 0.5px;
+}
+#status-text.ok   { color: #E85D9F; }
+#status-text.hint { color: #aaa; }
+
+/* Loading MediaPipe */
+#mp-loading {
+  position: absolute; inset: 0;
+  display: flex; flex-direction: column; align-items: center; justify-content: center;
+  background: rgba(0,0,0,0.7); color: #aaa; font-size: 0.8rem;
+  gap: 12px; border-radius: 14px;
+}
+#mp-loading .spinner {
+  width: 28px; height: 28px; border-radius: 50%;
+  border: 2px solid #333; border-top-color: #C4973A;
+  animation: spin 0.8s linear infinite;
+}
+@keyframes spin { to { transform: rotate(360deg); } }
+
+/* Botões */
+.btn {
+  width: 100%; padding: 14px; border-radius: 12px; border: none;
+  font-size: 0.95rem; font-weight: 600; cursor: pointer;
+  transition: all 0.3s ease; letter-spacing: 0.5px;
+}
+.btn:active { transform: scale(0.98); }
+.btn-primary {
+  background: linear-gradient(135deg, #C4973A, #E85D9F);
+  color: #fff;
+  box-shadow: 0 4px 12px rgba(196, 151, 58, 0.3);
+}
+.btn-primary:hover {
+  box-shadow: 0 6px 20px rgba(232, 93, 159, 0.4);
+  transform: translateY(-2px);
+}
+.btn-ghost   {
+  background: rgba(100, 200, 255, 0.05);
+  color: #6DD5ED;
+  border: 1px solid rgba(109, 213, 237, 0.3);
+  margin-top: 10px;
+  font-size: 0.8rem;
+}
+.btn-ghost:hover {
+  background: rgba(100, 200, 255, 0.1);
+  border-color: #6DD5ED;
+}
+#btn-manual  { display: none; }
+
+/* ── MEIAS FACES ── */
+.faces-row { display: flex; gap: 10px; justify-content: center; margin-bottom: 20px; }
+.face-card { display: flex; flex-direction: column; align-items: center; gap: 8px; flex: 1; }
+.face-card canvas {
+  width: 100%; aspect-ratio: 1; border-radius: 10px;
+  border: 2px solid rgba(109, 213, 237, 0.2);
+  display: block;
+  transition: all 0.3s ease;
+}
+.face-card canvas:hover { border-color: #6DD5ED; box-shadow: 0 0 12px rgba(109, 213, 237, 0.2); }
+.face-card canvas.destaque { border-color: #C4973A; box-shadow: 0 0 16px rgba(196, 151, 58, 0.3); }
+.face-lbl { font-size: 0.58rem; color: var(--text-muted); text-align: center; line-height: 1.5; text-transform: uppercase; letter-spacing: 0.5px; }
+.section-title {
+  font-size: 0.85rem;
+  font-weight: 700;
+  letter-spacing: 1.2px;
+  text-transform: uppercase;
+  margin-bottom: 16px;
+  margin-top: 10px;
+}
+#sec-faces .section-title { color: #E85D9F; }
+#sec-education .section-title { color: #6DD5ED; }
+#sec-quiz .section-title { color: #A78BFA; }
+#sec-result { min-height: auto; max-height: none; overflow: visible; }
+#sec-result .section-title { color: #C4973A; }
+#cards-resultado { display: flex; flex-direction: column; gap: 12px; min-height: auto; }
+#sec-haircut .section-title { color: #E85D9F; }
+
+/* ── QUIZ ── */
+#chat { display: flex; flex-direction: column; gap: 10px; min-height: 200px; }
+.msg { max-width: 88%; padding: 11px 15px; border-radius: 14px; font-size: 0.88rem; line-height: 1.5; animation: fadeUp 0.3s ease; }
+.msg.bot { background: rgba(50, 50, 80, 0.3); border: 1px solid rgba(109, 213, 237, 0.2); align-self: flex-start; color: var(--text-secondary); }
+.msg.user-resp { background: rgba(232, 93, 159, 0.1); border: 1px solid rgba(232, 93, 159, 0.3); align-self: flex-end; color: #E85D9F; font-style: italic; }
+.opts-wrap { display: flex; flex-direction: column; gap: 8px; animation: fadeUp 0.3s ease; }
+.opt {
+  background: rgba(100, 100, 140, 0.1);
+  border: 1px solid rgba(167, 139, 250, 0.2);
+  color: var(--text-secondary);
+  padding: 11px 15px; border-radius: 10px; cursor: pointer;
+  font-size: 0.85rem; text-align: left; width: 100%;
+  transition: all 0.3s ease;
+}
+.opt:hover {
+  border-color: #A78BFA;
+  background: rgba(167, 139, 250, 0.2);
+  color: #A78BFA;
+  transform: translateX(4px);
+}
+@keyframes fadeUp { from { opacity: 0; transform: translateY(6px); } to { opacity: 1; transform: translateY(0); } }
+
+/* ── RESULTADO ── */
+.resultado-card {
+  background: linear-gradient(135deg, rgba(50, 50, 70, 0.1), rgba(232, 93, 159, 0.05));
+  border: 1px solid rgba(232, 93, 159, 0.2);
+  border-radius: 12px; padding: 16px; margin-bottom: 12px;
+  transition: all 0.3s ease;
+}
+.resultado-card:hover {
+  border-color: rgba(232, 93, 159, 0.4);
+  background: linear-gradient(135deg, rgba(50, 50, 70, 0.15), rgba(232, 93, 159, 0.1));
+}
+.resultado-card h3 {
+  font-size: 0.68rem;
+  color: #60A5FA;
+  letter-spacing: 1.5px; text-transform: uppercase; margin-bottom: 10px;
+  padding-bottom: 8px; border-bottom: 1px solid rgba(232, 93, 159, 0.2);
+  font-weight: 600;
+}
+.resultado-card p { font-size: 0.83rem; color: var(--text-secondary); line-height: 1.65; font-weight: 300; }
+.resultado-card p + p { margin-top: 8px; }
+.titulo-protocolo {
+  color: #888;
+  font-size: 0.9em;
+  font-weight: 500;
+  letter-spacing: 0.5px;
+  opacity: 0.8;
+}
+.tag {
+  display: inline-block;
+  background: linear-gradient(135deg, rgba(196, 151, 58, 0.15), rgba(232, 93, 159, 0.1));
+  border: 1px solid rgba(196, 151, 58, 0.3);
+  color: #C4973A;
+  font-size: 0.68rem; padding: 3px 9px; border-radius: 20px; margin: 3px 3px 6px 0;
+}
+#json-raw {
+  background: linear-gradient(135deg, #0d0d0d, #0a0510);
+  border: 1px solid rgba(109, 213, 237, 0.2);
+  border-radius: 10px; padding: 14px; font-size: 0.68rem; line-height: 1.7;
+  color: #6DD5ED;
+  white-space: pre-wrap; word-break: break-all;
+  max-height: 280px; overflow-y: auto; margin-bottom: 12px; display: none;
+}
+#btn-toggle-json {
+  width: 100%; padding: 10px;
+  background: rgba(109, 213, 237, 0.05);
+  border: 1px solid rgba(109, 213, 237, 0.2);
+  color: #6DD5ED;
+  border-radius: 8px; font-size: 0.76rem; cursor: pointer; margin-bottom: 10px;
+  transition: all 0.2s;
+}
+#btn-toggle-json:hover {
+  background: rgba(109, 213, 237, 0.1);
+  border-color: #6DD5ED;
+}
+
+/* ── CORTE VISUAL ── */
+#sec-haircut { padding-top: 24px; }
+#haircut-container {
+  background: linear-gradient(135deg, rgba(100, 100, 140, 0.1), rgba(232, 93, 159, 0.05));
+  border: 1px solid rgba(167, 139, 250, 0.2);
+  border-radius: 12px; padding: 16px; margin-bottom: 16px;
+}
+#haircut-comparison { display: flex; gap: 12px; justify-content: center; margin-bottom: 16px; }
+.haircut-image-box { display: flex; flex-direction: column; align-items: center; gap: 8px; flex: 1; }
+.haircut-image-box img {
+  width: 100%; aspect-ratio: 1; border-radius: 10px;
+  border: 2px solid rgba(109, 213, 237, 0.3);
+  object-fit: cover;
+  transition: all 0.3s ease;
+}
+.haircut-image-box img:hover { border-color: #6DD5ED; box-shadow: 0 0 16px rgba(109, 213, 237, 0.3); }
+.haircut-label { font-size: 0.68rem; color: var(--text-muted); text-align: center; text-transform: uppercase; letter-spacing: 0.5px; }
+#haircut-spinner {
+  display: none; text-align: center; padding: 40px 20px;
+  position: relative; z-index: 100;
+  background: linear-gradient(135deg, rgba(100, 100, 140, 0.1), rgba(232, 93, 159, 0.05));
+  border-radius: 12px;
+  border: 1px solid rgba(167, 139, 250, 0.2);
+  min-height: 200px; display: flex; flex-direction: column;
+  align-items: center; justify-content: center;
+}
+#haircut-spinner.visible { display: flex !important; }
+#haircut-spinner .spinner {
+  width: 56px; height: 56px; margin: 0 auto 24px;
+  border-radius: 50%;
+  border: 4px solid rgba(100, 100, 140, 0.3);
+  border-top-color: #E85D9F;
+  border-right-color: #6DD5ED;
+  animation: spin 0.8s linear infinite, pulse 2s ease-in-out infinite;
+  box-shadow: 0 0 30px rgba(232, 93, 159, 0.4);
+}
+#haircut-spinner .status {
+  background: linear-gradient(90deg, #E85D9F, #6DD5ED);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+  font-size: 0.95rem;
+  font-weight: 600;
+  letter-spacing: 1px;
+  margin-bottom: 8px;
+  margin-top: 12px;
+}
+@keyframes dots { 0%, 20% { content: ''; } 40% { content: '.'; } 60% { content: '..'; } 80%, 100% { content: '...'; } }
+@keyframes pulse { 0%, 100% { box-shadow: 0 0 20px rgba(232, 93, 159, 0.3); } 50% { box-shadow: 0 0 40px rgba(232, 93, 159, 0.6); } }
+.haircut-prompt {
+  background: linear-gradient(135deg, #0d0d0d, #0a0510);
+  border: 1px solid rgba(109, 213, 237, 0.2);
+  border-radius: 10px; padding: 12px;
+  font-size: 0.75rem; color: var(--text-muted); line-height: 1.6;
+  margin-bottom: 12px; max-height: 150px; overflow-y: auto;
+}
+#btn-gerar-corte { margin-bottom: 10px; }
+#btn-voltar-resultado {
+  background: rgba(109, 213, 237, 0.05);
+  color: var(--text-secondary);
+  border: 1px solid rgba(109, 213, 237, 0.2);
+  margin-top: 10px;
+}
+#btn-voltar-resultado:hover {
+  background: rgba(109, 213, 237, 0.1);
+  border-color: #6DD5ED;
+}
+</style>
+</head>
+<body>
+
+<header>
+  <h1>IA BEAUTY</h1>
+  <p>Protocolo de Compensação Visual</p>
+</header>
+
+<!-- CÂMERA -->
+<div class="section active" id="sec-camera">
+  <div id="camera-wrap">
+    <video id="video" autoplay playsinline muted></video>
+    <canvas id="mask-canvas"></canvas>
+    <div id="cross-h"></div>
+    <div id="cross-v"></div>
+    <div id="cross-dot"></div>
+    <div id="mp-loading">
+      <div class="spinner"></div>
+      <span>Carregando câmera...</span>
+    </div>
+    <div id="countdown-overlay"><span id="countdown-num">3</span></div>
+    <div id="flash"></div>
+  </div>
+  <p id="status-text" class="hint">Centralize seu rosto</p>
+  <button class="btn btn-primary" id="btn-manual">📸 Tirar Foto</button>
+
+  <div style="margin-top: 16px; padding-top: 16px; border-top: 1px solid #333; text-align: center;">
+    <p style="font-size: 0.8rem; color: #666; margin-bottom: 10px;">ou</p>
+    <label for="file-upload" class="btn btn-ghost">📁 Enviar Foto de Arquivo</label>
+    <input type="file" id="file-upload" accept="image/*" style="display: none;">
+  </div>
+</div>
+
+<!-- MEIAS FACES -->
+<div class="section" id="sec-faces">
+  <p class="section-title">Análise Visual</p>
+  <div class="faces-row">
+    <div class="face-card">
+      <canvas id="leftCanvas" width="250" height="250"></canvas>
+      <span class="face-lbl">Meia Face<br>Esquerda<br><span style="color:#C4973A33">Herança Paterna</span></span>
+    </div>
+    <div class="face-card">
+      <canvas id="origCanvas" width="250" height="250" class="destaque"></canvas>
+      <span class="face-lbl" style="color:#555">Você</span>
+    </div>
+    <div class="face-card">
+      <canvas id="rightCanvas" width="250" height="250"></canvas>
+      <span class="face-lbl">Meia Face<br>Direita<br><span style="color:#C4973A33">Herança Materna</span></span>
+    </div>
+  </div>
+  <button class="btn btn-primary" id="btn-comecar-educacao">Entender Meu Rosto →</button>
+  <button class="btn btn-ghost"   id="btn-refazer">Tirar nova foto</button>
+</div>
+
+<!-- EDUCAÇÃO / ANCESTRALIDADE -->
+<div class="section" id="sec-education">
+  <p class="section-title">Suas Heranças Faciais</p>
+
+  <div style="background: #111; border: 1px solid #222; border-radius: 12px; padding: 16px; margin-bottom: 16px;">
+    <div style="text-align: center; margin-bottom: 16px;">
+      <canvas id="education-canvas" width="280" height="340" style="width: 100%; border-radius: 8px; border: 1px solid #333;"></canvas>
+    </div>
+
+    <div style="font-size: 0.88rem; line-height: 1.7; color: #bbb; margin-bottom: 12px;">
+      <p style="margin-bottom: 10px;">
+        <strong style="color: #C4973A;">Você é uma combinação única de duas heranças genéticas.</strong>
+      </p>
+
+      <p style="margin-bottom: 12px;">
+        <strong style="color: #E85D9F;">🟠 Herança Paterna</strong> — Lado Esquerdo<br>
+        Os traços marcantes que definem sua estrutura facial:
+      </p>
+      <ul style="margin-left: 16px; margin-bottom: 12px; list-style: none;">
+        <li>✓ Mandíbula (força, definição)</li>
+        <li>✓ Maçãs do rosto (volume, altura dos traços)</li>
+        <li>✓ Nariz (estrutura, projeção)</li>
+      </ul>
+
+      <p style="margin-bottom: 12px;">
+        <strong style="color: #A78BFA;">🟣 Herança Materna</strong> — Lado Direito<br>
+        Os traços que trazem suavidade, expressão e delicadeza:
+      </p>
+      <ul style="margin-left: 16px; margin-bottom: 12px; list-style: none;">
+        <li>✓ Suavidade nos traços (arredondamentos, curvas)</li>
+        <li>✓ Expressão natural (olhos, sorriso)</li>
+        <li>✓ Proporções delicadas</li>
+      </ul>
+
+      <p style="margin-bottom: 12px; color: #999; font-size: 0.82rem;">
+        Estudos genéticos identificam <strong>32 regiões faciais</strong> onde a herança se expressa. Sua assimetria natural não é uma imperfeição — é seu "superpoder" para compensação visual.
+      </p>
+
+      <p style="margin-top: 16px; padding-top: 12px; border-top: 1px solid #333; color: #C4973A; font-size: 0.85rem;">
+        🔍 <strong>O que você vai aprender:</strong><br>
+        Como usar essas assimetrias naturais para escolher um corte que realmente equilibra seu rosto e potencializa sua presença.
+      </p>
+    </div>
+  </div>
+
+  <button class="btn btn-primary" id="btn-para-quiz">Continuar com o Questionário →</button>
+  <button class="btn btn-ghost" id="btn-voltar-faces">Voltar</button>
+</div>
+
+<!-- QUIZ -->
+<div class="section" id="sec-quiz">
+  <p class="section-title">Questionário</p>
+  <div id="chat"></div>
+</div>
+
+<!-- RESULTADO -->
+<div class="section" id="sec-result">
+  <p class="section-title">Resultado da Análise</p>
+  <div id="cards-resultado"></div>
+  <button class="btn btn-primary" id="btn-download-pdf" style="margin-bottom: 10px; display: none;">📥 Baixar PDF da Análise</button>
+  <button id="btn-toggle-json">{ } Ver JSON completo</button>
+  <pre id="json-raw"></pre>
+  <button class="btn btn-primary" id="btn-copiar-json">Copiar JSON</button>
+  <button class="btn btn-ghost"   id="btn-nova-analise">Nova Análise</button>
+</div>
+
+
+<script type="module">
+// ─────────────────────────────────────────────
+//  LANDMARKS DA MÁSCARA (índices MediaPipe 468)
+// ─────────────────────────────────────────────
+const FACE_OVAL   = [10,338,297,332,284,251,389,356,454,323,361,288,397,365,379,378,400,377,152,148,176,149,150,136,172,58,132,93,234,127,162,21,54,103,67,109];
+const LEFT_EYE    = [33,7,163,144,145,153,154,155,133,173,157,158,159,160,161,246];
+const RIGHT_EYE   = [362,382,381,380,374,373,390,249,263,466,388,387,386,385,384,398];
+const LEFT_BROW   = [276,283,282,295,285,336,296,334,293,300];
+const RIGHT_BROW  = [46,53,52,65,55,107,66,105,63,70];
+const NOSE_BRIDGE = [168,6,197,195,5,4,1,19,94];
+const NOSE_BASE   = [218,115,220,45,4,275,220,343,218];
+const LIPS_OUTER  = [61,185,40,39,37,0,267,269,270,409,291,375,321,405,314,17,84,181,91,146];
+const LIPS_INNER  = [78,191,80,81,82,13,312,311,310,415,308,324,318,402,317,14,87,178,88,95];
+
+// ─────────────────────────────────────────────
+//  ESTADO
+// ─────────────────────────────────────────────
+const S = { stream: null, capturedImg: null, quiz: {}, resultado: null };
+let ultimosLandmarks = null;
+
+// ─────────────────────────────────────────────
+//  ELEMENTOS
+// ─────────────────────────────────────────────
+const video      = document.getElementById('video');
+const maskCanvas = document.getElementById('mask-canvas');
+const crossH     = document.getElementById('cross-h');
+const crossV     = document.getElementById('cross-v');
+const crossDot   = document.getElementById('cross-dot');
+const statusText = document.getElementById('status-text');
+const cdOverlay  = document.getElementById('countdown-overlay');
+const cdNum      = document.getElementById('countdown-num');
+const flashEl    = document.getElementById('flash');
+const cameraWrap = document.getElementById('camera-wrap');
+const mpLoading  = document.getElementById('mp-loading');
+const btnManual  = document.getElementById('btn-manual');
+
+// ─────────────────────────────────────────────
+//  NAVEGAÇÃO
+// ─────────────────────────────────────────────
+function show(id) {
+  document.querySelectorAll('.section').forEach(s => s.classList.remove('active'));
+  document.getElementById(id).classList.add('active');
+  window.scrollTo(0, 0);
+}
+
+// ─────────────────────────────────────────────
+//  CÂMERA
+// ─────────────────────────────────────────────
+async function iniciarCamera() {
+  try {
+    S.stream = await navigator.mediaDevices.getUserMedia({
+      video: { facingMode: 'user', width: { ideal: 1280 }, height: { ideal: 960 } },
+      audio: false
+    });
+    video.srcObject = S.stream;
+    await new Promise(r => video.addEventListener('loadedmetadata', r, { once: true }));
+    ajustarCanvas();
+    await iniciarMediaPipe();
+    mpLoading.style.display = 'none';
+  } catch (e) {
+    mpLoading.style.display = 'none';
+    statusText.textContent = 'Câmera indisponível — use o botão';
+    btnManual.style.display = 'block';
+  }
+}
+
+function pararCamera() {
+  if (S.stream) { S.stream.getTracks().forEach(t => t.stop()); S.stream = null; }
+  pararLoop();
+}
+
+function ajustarCanvas() {
+  maskCanvas.width  = cameraWrap.clientWidth;
+  maskCanvas.height = cameraWrap.clientHeight;
+}
+window.addEventListener('resize', ajustarCanvas);
+
+// ─────────────────────────────────────────────
+//  MEDIAPIPE FACE LANDMARKER
+// ─────────────────────────────────────────────
+let faceLandmarker = null;
+let rafId = null;
+let emContagem = false, cdTimer = null, okFrames = 0;
+const lerp = (a, b, t) => a + (b - a) * t;
+let encaixado = false;
+
+async function iniciarMediaPipe() {
+  const { FaceLandmarker, FilesetResolver } = await import(
+    'https://cdn.jsdelivr.net/npm/@mediapipe/tasks-vision@0.10.12/vision_bundle.mjs'
+  );
+  const vision = await FilesetResolver.forVisionTasks(
+    'https://cdn.jsdelivr.net/npm/@mediapipe/tasks-vision@0.10.12/wasm'
+  );
+  faceLandmarker = await FaceLandmarker.createFromOptions(vision, {
+    baseOptions: {
+      modelAssetPath: 'https://storage.googleapis.com/mediapipe-models/face_landmarker/face_landmarker/float16/1/face_landmarker.task',
+      delegate: 'GPU'
+    },
+    runningMode: 'VIDEO',
+    numFaces: 1,
+    minFaceDetectionConfidence: 0.5,
+    minFacePresenceConfidence: 0.5,
+    minTrackingConfidence: 0.5
+  });
+  loopLandmarks();
+}
+
+function pararLoop() {
+  if (rafId) { cancelAnimationFrame(rafId); rafId = null; }
+}
+
+let lastTs = 0;
+function loopLandmarks() {
+  rafId = requestAnimationFrame(ts => {
+    if (!S.stream) return;
+    if (faceLandmarker && ts - lastTs > 80) {
+      lastTs = ts;
+      try {
+        const res = faceLandmarker.detectForVideo(video, ts);
+        if (res.faceLandmarks && res.faceLandmarks.length > 0) {
+          ultimosLandmarks = res.faceLandmarks[0];
+          processarRosto(ultimosLandmarks);
+        } else {
+          semRosto();
+        }
+      } catch (_) {}
+    }
+    loopLandmarks();
+  });
+}
+
+// ─────────────────────────────────────────────
+//  PROCESSAR ROSTO
+// ─────────────────────────────────────────────
+function processarRosto(landmarks) {
+  // Ocultar cruz
+  crossH.classList.add('hide');
+  crossV.classList.add('hide');
+  crossDot.classList.add('hide');
+
+  // Verificar centralização
+  const dw = maskCanvas.width, dh = maskCanvas.height;
+  let sumX = 0, sumY = 0;
+  for (const lm of landmarks) { sumX += lm.x; sumY += lm.y; }
+  const cx = 1 - (sumX / landmarks.length); // invertido (espelhamento)
+  const cy = sumY / landmarks.length;
+
+  // Tamanho do rosto (span horizontal)
+  let minX = 1, maxX = 0;
+  for (const lm of landmarks) { minX = Math.min(minX, lm.x); maxX = Math.max(maxX, lm.x); }
+  const largura = (maxX - minX) * dw;
+
+  const centralH = Math.abs(cx - 0.5) < 0.07;
+  const centralV = Math.abs(cy - 0.44) < 0.07;
+  const tamanho  = largura > dw * 0.32 && largura < dw * 0.95; // aumentado o limite máximo
+
+  if (centralH && centralV && tamanho) {
+    okFrames++;
+    encaixado = true;
+    statusText.textContent = 'Perfeito! Segure firme...';
+    statusText.className = 'ok';
+    if (okFrames >= 5 && !emContagem) iniciarContagem();
+  } else {
+    okFrames = 0;
+    encaixado = false;
+    if (!emContagem) cancelarContagem();
+
+    const offH = cx - 0.5;
+    const offV = cy - 0.44;
+
+    if (largura < dw * 0.3) {
+      statusText.textContent = 'Aproxime-se da câmera';
+    } else if (largura > dw * 0.82) {
+      statusText.textContent = 'Afaste-se um pouco';
+    } else if (!centralH && !centralV) {
+      statusText.textContent = Math.abs(offH) >= Math.abs(offV)
+        ? (offH > 0 ? '← Mova para a esquerda' : '→ Mova para a direita')
+        : (offV > 0 ? '↑ Mova para cima'        : '↓ Mova para baixo');
+    } else if (!centralH) {
+      statusText.textContent = offH > 0 ? '← Mova para a esquerda' : '→ Mova para a direita';
+    } else if (!centralV) {
+      statusText.textContent = offV > 0 ? '↑ Mova para cima' : '↓ Mova para baixo';
+    } else {
+      statusText.textContent = 'Quase lá...';
+    }
+    statusText.className = '';
+  }
+
+  desenharMascara(landmarks, encaixado);
+}
+
+function semRosto() {
+  if (emContagem) return;
+  ultimosLandmarks = null;
+  encaixado = false;
+  okFrames = 0;
+  // Limpar canvas e mostrar cruz
+  const ctx = maskCanvas.getContext('2d');
+  ctx.clearRect(0, 0, maskCanvas.width, maskCanvas.height);
+  crossH.classList.remove('hide');
+  crossV.classList.remove('hide');
+  crossDot.classList.remove('hide');
+  statusText.textContent = 'Centralize seu rosto';
+  statusText.className = 'hint';
+}
+
+// ─────────────────────────────────────────────
+//  DESENHAR MÁSCARA NOS LANDMARKS
+// ─────────────────────────────────────────────
+function desenharMascara(landmarks, isEncaixado) {
+  const ctx = maskCanvas.getContext('2d');
+  const dw  = maskCanvas.width, dh = maskCanvas.height;
+  ctx.clearRect(0, 0, dw, dh);
+
+  // Cor: branca ao rastrear, dourada ao centralizar
+  const cor    = isEncaixado ? '#C4973A'             : 'rgba(255,255,255,0.7)';
+  const corFraca = isEncaixado ? 'rgba(196, 151, 58, 0.3)' : 'rgba(255,255,255,0.35)';
+
+  if (isEncaixado) {
+    ctx.shadowColor = '#C4973A';
+    ctx.shadowBlur  = 7;
+  } else {
+    ctx.shadowBlur = 0;
+  }
+
+  // Calcular centro X e fator de expansão lateral (aplica a TUDO)
+  let sumX = 0;
+  for (const lm of landmarks) sumX += (1 - lm.x) * dw;
+  const centerX = sumX / landmarks.length;
+  const EXPANSION_FACTOR = 1.0; // ajustável (sem expansão lateral)
+
+  // Converter landmark (normalizado) → pixel no canvas (com espelhamento invertido)
+  function p(idx) {
+    const lm = landmarks[idx];
+    if (!lm) return null;
+    const x = (1 - lm.x) * dw;
+    const y = lm.y * dh;
+    // Aplicar expansão lateral
+    const expandedX = centerX + (x - centerX) * EXPANSION_FACTOR;
+    return { x: expandedX, y: y };
+  }
+
+  function path(indices, fechar = false, alpha = 1) {
+    const pts = indices.map(i => p(i)).filter(Boolean);
+    if (pts.length < 2) return;
+    ctx.globalAlpha = alpha;
+    ctx.beginPath();
+    ctx.moveTo(pts[0].x, pts[0].y);
+    for (let i = 1; i < pts.length; i++) ctx.lineTo(pts[i].x, pts[i].y);
+    if (fechar) ctx.closePath();
+    ctx.stroke();
+    ctx.globalAlpha = 1;
+  }
+
+  // Contorno do rosto — oval ajustado para hairline real
+  ctx.strokeStyle = cor; ctx.lineWidth = 2.5;
+  const pForehead = p(10);  // meio da testa (MediaPipe não tem hairline nativo)
+  const pChin     = p(152); // queixo
+  const ovalPts   = FACE_OVAL.map(i => p(i)).filter(Boolean);
+
+  if (ovalPts.length > 2 && pForehead && pChin) {
+    const faceH = pChin.y - pForehead.y;
+    // Ponto 10 fica no meio da testa → hairline está ~15% acima (reduzido de 22%)
+    const hairOffset = faceH * 0.15;
+    const upperLimit = pForehead.y + faceH * 0.20;
+
+    // Ajuste vertical da testa (hairline)
+    const adjusted = ovalPts.map(pt => {
+      if (pt.y < upperLimit) {
+        const ratio = 1 - (pt.y - pForehead.y) / (upperLimit - pForehead.y);
+        return { x: pt.x, y: pt.y - hairOffset * ratio };
+      }
+      return pt;
+    });
+
+    ctx.globalAlpha = 0.88;
+    ctx.beginPath();
+    ctx.moveTo(adjusted[0].x, adjusted[0].y);
+    for (let i = 1; i < adjusted.length - 1; i++) {
+      const mx = (adjusted[i].x + adjusted[i+1].x) / 2;
+      const my = (adjusted[i].y + adjusted[i+1].y) / 2;
+      ctx.quadraticCurveTo(adjusted[i].x, adjusted[i].y, mx, my);
+    }
+    ctx.quadraticCurveTo(
+      adjusted[adjusted.length-1].x, adjusted[adjusted.length-1].y,
+      adjusted[0].x, adjusted[0].y
+    );
+    ctx.closePath();
+    ctx.stroke();
+    ctx.globalAlpha = 1;
+  }
+
+  // Sobrancelhas
+  ctx.strokeStyle = cor; ctx.lineWidth = 1.5;
+  path(LEFT_BROW,  false, 0.9);
+  path(RIGHT_BROW, false, 0.9);
+
+  // Olhos
+  ctx.strokeStyle = cor; ctx.lineWidth = 1.5;
+  path(LEFT_EYE,  true, 0.9);
+  path(RIGHT_EYE, true, 0.9);
+
+  // Nariz
+  ctx.strokeStyle = corFraca; ctx.lineWidth = 1.2;
+  path(NOSE_BRIDGE, false, 0.75);
+  path(NOSE_BASE,   false, 0.65);
+
+  // Boca
+  ctx.strokeStyle = cor; ctx.lineWidth = 1.5;
+  path(LIPS_OUTER, true, 0.9);
+  path(LIPS_INNER, true, 0.6);
+
+  ctx.shadowBlur = 0;
+}
+
+// ─────────────────────────────────────────────
+//  CONTAGEM
+// ─────────────────────────────────────────────
+function iniciarContagem() {
+  emContagem = true;
+  let n = 3;
+  cdNum.textContent = n;
+  cdOverlay.classList.add('visible');
+  cdTimer = setInterval(() => {
+    n--;
+    if (n > 0) {
+      cdNum.style.animation = 'none';
+      void cdNum.offsetWidth;
+      cdNum.style.animation = '';
+      cdNum.textContent = n;
+    } else {
+      clearInterval(cdTimer);
+      cdOverlay.classList.remove('visible');
+      dispararCaptura();
+    }
+  }, 1000);
+}
+
+function cancelarContagem() {
+  if (cdTimer) { clearInterval(cdTimer); cdTimer = null; }
+  emContagem = false;
+  cdOverlay.classList.remove('visible');
+  okFrames = 0;
+}
+
+// ─────────────────────────────────────────────
+//  CAPTURA COM CROP NO ROSTO
+// ─────────────────────────────────────────────
+function dispararCaptura() {
+  flashEl.classList.remove('bang');
+  void flashEl.offsetWidth;
+  flashEl.classList.add('bang');
+
+  const tmp = document.createElement('canvas');
+  tmp.width = video.videoWidth; tmp.height = video.videoHeight;
+  const ctx = tmp.getContext('2d');
+  ctx.translate(tmp.width, 0); ctx.scale(-1, 1);
+  ctx.drawImage(video, 0, 0);
+
+  let dataUrl = tmp.toDataURL('image/jpeg', 0.92);
+
+  // Crop automático no rosto usando landmarks
+  if (ultimosLandmarks) {
+    let minX = 1, maxX = 0, minY = 1, maxY = 0;
+    for (const lm of ultimosLandmarks) {
+      minX = Math.min(minX, lm.x); maxX = Math.max(maxX, lm.x);
+      minY = Math.min(minY, lm.y); maxY = Math.max(maxY, lm.y);
+    }
+    // Inverter X (espelhamento desfeito na captura)
+    const fLeft = (1 - maxX) * tmp.width;
+    const fTop  = minY * tmp.height;
+    const fW    = (maxX - minX) * tmp.width;
+    const fH    = (maxY - minY) * tmp.height;
+
+    // Margem: 18% horizontal, 35% vertical (mais espaço no topo para testa/cabelo)
+    const mx = fW * 0.18, myTop = fH * 0.35, myBot = fH * 0.12;
+    const cx = Math.max(0, fLeft - mx);
+    const cy = Math.max(0, fTop - myTop);
+    const cw = Math.min(tmp.width  - cx, fW + mx * 2);
+    const ch = Math.min(tmp.height - cy, fH + myTop + myBot);
+
+    const crop = document.createElement('canvas');
+    crop.width = cw; crop.height = ch;
+    crop.getContext('2d').drawImage(tmp, cx, cy, cw, ch, 0, 0, cw, ch);
+    dataUrl = crop.toDataURL('image/jpeg', 0.92);
+  }
+
+  S.capturedImg = new Image();
+  S.capturedImg.onload = () => { pararCamera(); gerarMeiasFaces(); show('sec-faces'); };
+  S.capturedImg.src = dataUrl;
+}
+
+btnManual.addEventListener('click', dispararCaptura);
+
+// File upload handler
+document.getElementById('file-upload').addEventListener('change', (e) => {
+  const file = e.target.files[0];
+  if (!file) return;
+
+  const reader = new FileReader();
+  reader.onload = (evt) => {
+    S.capturedImg = new Image();
+    S.capturedImg.onload = () => {
+      pararCamera();
+      gerarMeiasFaces();
+      show('sec-faces');
+    };
+    S.capturedImg.src = evt.target.result;
+  };
+  reader.readAsDataURL(file);
+});
+
+// ─────────────────────────────────────────────
+//  MEIAS FACES
+// ─────────────────────────────────────────────
+function gerarMeiasFaces() {
+  const img = S.capturedImg;
+  const MAX = 500;
+  let w = img.naturalWidth, h = img.naturalHeight;
+  if (w > h) { if (w > MAX) { h = Math.round(h * MAX / w); w = MAX; } }
+  else        { if (h > MAX) { w = Math.round(w * MAX / h); h = MAX; } }
+
+  const tmp = document.createElement('canvas');
+  tmp.width = w; tmp.height = h;
+  tmp.getContext('2d').drawImage(img, 0, 0, w, h);
+
+  const SZ = 250;
+  const half = SZ / 2;
+  const mid = w / 2;
+
+  const lc = document.getElementById('leftCanvas').getContext('2d');
+  const oc = document.getElementById('origCanvas').getContext('2d');
+  const rc = document.getElementById('rightCanvas').getContext('2d');
+
+  // ORIGINAL
+  oc.clearRect(0,0,SZ,SZ);
+  oc.drawImage(tmp, 0, 0, w, h, 0, 0, SZ, SZ);
+
+  function renderMeiaFace(ctx, srcStartX, isRight) {
+    // Canvas temporário com a metade
+    const temp = document.createElement('canvas');
+    temp.width = half; temp.height = SZ;
+    temp.getContext('2d').drawImage(tmp, srcStartX, 0, mid, h, 0, 0, half, SZ);
+
+    ctx.clearRect(0, 0, SZ, SZ);
+
+    if (!isRight) {
+      // ESQUERDA: normal à esquerda, espelhado à direita
+      ctx.drawImage(temp, 0, 0, half, SZ);
+      ctx.save();
+      ctx.translate(SZ, 0);
+      ctx.scale(-1, 1);
+      ctx.drawImage(temp, 0, 0, half, SZ);
+      ctx.restore();
+    } else {
+      // DIREITA: espelhado à esquerda, normal à direita
+      ctx.save();
+      ctx.scale(-1, 1);
+      ctx.drawImage(temp, -half, 0, half, SZ);
+      ctx.restore();
+      ctx.drawImage(temp, half, 0, half, SZ);
+    }
+  }
+
+  // ESQUERDA (lado direito duplicado)
+  renderMeiaFace(lc, 0, false);
+
+  // DIREITA (lado esquerdo duplicado)
+  renderMeiaFace(rc, mid, true);
+}
+
+document.getElementById('btn-comecar-educacao').addEventListener('click', () => {
+  mostrarEducacao();
+  show('sec-education');
+});
+
+document.getElementById('btn-para-quiz').addEventListener('click', () => {
+  show('sec-quiz');
+  setTimeout(iniciarQuiz, 80);
+});
+
+document.getElementById('btn-voltar-faces').addEventListener('click', () => {
+  show('sec-faces');
+});
+
+function mostrarEducacao() {
+  const canvas = document.getElementById('education-canvas');
+  const ctx = canvas.getContext('2d');
+  const img = S.capturedImg;
+
+  if (!img) return;
+
+  // Desenhar a imagem capturada
+  ctx.clearRect(0, 0, canvas.width, canvas.height);
+  ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
+
+  // Desenhar linha divisória vertical no meio (herança paterna | herança materna)
+  const cx = canvas.width / 2;
+  ctx.strokeStyle = '#C4973A';
+  ctx.lineWidth = 2;
+  ctx.setLineDash([6, 4]);
+  ctx.beginPath();
+  ctx.moveTo(cx, 0);
+  ctx.lineTo(cx, canvas.height);
+  ctx.stroke();
+  ctx.setLineDash([]);
+
+  // Labels nas laterais
+  ctx.fillStyle = '#A78BFA';
+  ctx.font = 'bold 12px Arial';
+  ctx.textAlign = 'center';
+  ctx.fillText('PATERNA', cx - 50, 20);
+  ctx.fillText('MATERNA', cx + 50, 20);
+}
+document.getElementById('btn-refazer').addEventListener('click', () => {
+  cancelarContagem(); encaixado = false; okFrames = 0;
+  ultimosLandmarks = null;
+  const ctx = maskCanvas.getContext('2d'); ctx.clearRect(0,0,maskCanvas.width,maskCanvas.height);
+  crossH.classList.remove('hide'); crossV.classList.remove('hide'); crossDot.classList.remove('hide');
+  statusText.textContent = 'Centralize seu rosto'; statusText.className = 'hint';
+  mpLoading.style.display = 'flex';
+  show('sec-camera'); iniciarCamera();
+});
+
+// ─────────────────────────────────────────────
+//  QUIZ
+// ─────────────────────────────────────────────
+const chatEl = document.getElementById('chat');
+const wait   = ms => new Promise(r => setTimeout(r, ms));
+
+async function msg(texto) {
+  await wait(320);
+  const d = document.createElement('div');
+  d.className = 'msg bot'; d.textContent = texto;
+  chatEl.appendChild(d); chatEl.scrollTop = chatEl.scrollHeight;
+}
+
+function opts(opcoes) {
+  return new Promise(resolve => {
+    const wrap = document.createElement('div');
+    wrap.className = 'opts-wrap';
+    opcoes.forEach(op => {
+      const btn = document.createElement('button'); btn.className = 'opt'; btn.textContent = op.label;
+      btn.addEventListener('click', () => {
+        wrap.remove();
+        const r = document.createElement('div'); r.className = 'msg user-resp'; r.textContent = op.label;
+        chatEl.appendChild(r); chatEl.scrollTop = chatEl.scrollHeight;
+        resolve(op.value);
+      });
+      wrap.appendChild(btn);
+    });
+    chatEl.appendChild(wrap); chatEl.scrollTop = chatEl.scrollHeight;
+  });
+}
+
+async function iniciarQuiz() {
+  chatEl.innerHTML = ''; S.quiz = {};
+
+  // ═══════════════════════════════════════════════════════════════
+  //  SEÇÃO 1: ROSTO (Como a usuária se vê)
+  // ═══════════════════════════════════════════════════════════════
+
+  // P1: Percepção do rosto
+  await msg('📸 SEÇÃO 1: ROSTO\n\nPara você, seu rosto está mais para...');
+  S.quiz.assimetria = await opts([
+    { label: 'Longo demais',        value: 'longo' },
+    { label: 'Largo demais',        value: 'largo' },
+    { label: 'Equilibrado',         value: 'equilibrado' }
+  ]);
+
+  // P2: Desconforto
+  await msg('Isso te gera algum desconforto?');
+  S.quiz.desconforto = await opts([
+    { label: 'Sim, gostaria de compensar', value: 'sim' },
+    { label: 'Não, está tudo bem',        value: 'nao' }
+  ]);
+
+  // P3: Franja
+  await msg('Você usa franja reta ou côncava acima das sobrancelhas?');
+  S.quiz.franja = await opts([
+    { label: 'Sim, porém meu rosto ficou mais largo',      value: 'mais_largo' },
+    { label: 'Sim, meu rosto equilibra com franja reta',   value: 'equilibra' },
+    { label: 'Sim, porém meu nariz fica mais proeminente', value: 'nariz' },
+    { label: 'Não uso franja',                             value: 'nao_usa' },
+    { label: 'Gostaria de usar franja',                    value: 'gostaria' }
+  ]);
+
+  // P4: Linhas do rosto
+  await msg('Quais linhas predominam no seu rosto?');
+  S.quiz.linhasRosto = await opts([
+    { label: 'Retas/Angulosas',      value: 'retas' },
+    { label: 'Curvas/Arredondadas',  value: 'curvas' },
+    { label: 'Diagonais/Mistas',     value: 'diagonais' }
+  ]);
+
+  // P5A: Nariz - separar largo de longo
+  await msg('Como você descreve seu nariz?');
+  const narizResposta = await opts([
+    { label: 'Largo',                                  value: 'largo' },
+    { label: 'Longo',                                  value: 'longo' },
+    { label: 'Largo E longo',                          value: 'largo_longo' },
+    { label: 'Proporcional ao rosto',                  value: 'proporcional' }
+  ]);
+  S.quiz.narizLargo = narizResposta === 'largo' || narizResposta === 'largo_longo';
+  S.quiz.narizComprido = narizResposta === 'longo' || narizResposta === 'largo_longo';
+
+  // P5B: Outras características faciais
+  await msg('Tem alguma outra característica facial que gostaria de compensar visualmente?');
+  S.quiz.caracteristicaFacial = await opts([
+    { label: 'Papada/Flacidez no queixo',              value: 'papada' },
+    { label: 'Maçãs do rosto proeminentes',            value: 'macas' },
+    { label: 'Rosto muito inchado/arredondado',        value: 'inchado' },
+    { label: 'Nenhuma, tudo bem',                      value: 'nenhuma' }
+  ]);
+
+  // ═══════════════════════════════════════════════════════════════
+  //  SEÇÃO 2: CORPO (Como o expectador a vê)
+  // ═══════════════════════════════════════════════════════════════
+
+  // P6: Biotipo do corpo
+  await msg('💃 SEÇÃO 2: CORPO\n\nQual é seu biotipo/formato do corpo?');
+  S.quiz.biotipo = await opts([
+    { label: 'Retângulo (reto em tudo)',                                    value: 'retangulo' },
+    { label: 'Pêra (quadril mais largo que ombros)',                        value: 'pera' },
+    { label: 'Triângulo invertido (ombros mais largos que quadril)',        value: 'triangulo_inv' },
+    { label: 'Ampulheta (ombros e quadril equilibrados, cintura definida)', value: 'ampulheta' },
+    { label: 'Oval (volume concentrado no centro)',                         value: 'oval' }
+  ]);
+
+  // P7: Linhas do corpo (NOVO)
+  await msg('Quais linhas predominam no seu corpo?');
+  S.quiz.linhasCorpo = await opts([
+    { label: 'Retas/Geométricas',      value: 'retas' },
+    { label: 'Curvas/Arredondadas',    value: 'curvas' },
+    { label: 'Diagonais/Com movimento', value: 'diagonais' }
+  ]);
+
+  // P8: Comprimento preferido
+  await msg('Qual comprimento de cabelo você prefere?');
+  S.quiz.comprimentoPreferido = await opts([
+    { label: 'Curto (acima do ombro)',         value: 'curto' },
+    { label: 'Médio (altura do ombro)',        value: 'medio' },
+    { label: 'Longo (abaixo do ombro/cintura)', value: 'longo' }
+  ]);
+
+  await msg('Analisando...'); await wait(850);
+  gerarResultado(); show('sec-result');
+}
+
+// ─────────────────────────────────────────────
+//  REGRAS
+// ─────────────────────────────────────────────
+async function gerarResultado() {
+  console.log('=== INICIANDO GERAÇÃO DE RESULTADO ===');
+  const q = S.quiz;
+  console.log('Quiz respondido:', q);
+
+  S.resultado = {
+    imagens: {
+      meiaFaceEsquerda: document.getElementById('leftCanvas').toDataURL('image/jpeg', 0.75),
+      original:         document.getElementById('origCanvas').toDataURL('image/jpeg', 0.75),
+      meiaFaceDireita:  document.getElementById('rightCanvas').toDataURL('image/jpeg', 0.75)
+    },
+    quiz: q,
+    protocolo: null,
+    carregando: true
+  };
+
+  show('sec-result');
+  renderCards(S.resultado);
+
+  // Iniciar animação de status dinâmico
+  const statusMessages = [
+    '📊 Processando assimetria facial',
+    '🎨 Calculando compensação visual',
+    '📈 Analisando características faciais',
+    '💡 Gerando recomendações personalizadas',
+    '✨ Finalizando análise...'
+  ];
+  let msgIdx = 0;
+  let statusInterval = null;
+
+  // Atualizar renderCards com mensagens dinâmicas a cada 1.5s
+  statusInterval = setInterval(() => {
+    msgIdx = (msgIdx + 1) % statusMessages.length;
+    renderCardsWithStatus(S.resultado, statusMessages[msgIdx]);
+  }, 1500);
+
+  // Chamar IA para gerar protocolo
+  const nomeUsuaria = document.getElementById('nome-usuario')?.textContent || 'Você';
+  console.log('Nome da usuária:', nomeUsuaria);
+
+  const protocolo = await gerarProtocoloComIA(nomeUsuaria, q, S.resultado.imagens);
+  console.log('Protocolo retornado:', protocolo ? 'SIM' : 'NÃO');
+
+  // Parar animação de status
+  if (statusInterval) clearInterval(statusInterval);
+
+  S.resultado.protocolo = protocolo;
+  S.resultado.carregando = false;
+
+  // Re-renderizar cards com o protocolo completo
+  renderCards(S.resultado);
+
+  // ⏱️ Mostrar botão com delay (5 segundos) para usuária ler introdução
+  const btnGerarCorte = document.getElementById('btn-gerar-corte');
+  if (btnGerarCorte) {
+    btnGerarCorte.style.display = 'none';
+    setTimeout(() => {
+      btnGerarCorte.style.display = 'block';
+      btnGerarCorte.style.animation = 'fadeUp 0.5s ease';
+    }, 5000);
+  }
+  S.resultado.carregando = false;
+
+  renderCards(S.resultado);
+}
+
+function renderCardsWithStatus(res, customMessage) {
+  // Versão otimizada de renderCards que só atualiza o status message
+  const statusEl = document.querySelector('.protocolo-status-msg');
+  if (statusEl && customMessage) {
+    statusEl.textContent = customMessage;
+  }
+}
+
+function renderCards(res) {
+  console.log('🎨 renderCards chamado');
+  console.log('  - carregando:', res.carregando);
+  console.log('  - protocolo existe:', !!res.protocolo);
+
+  const c = document.getElementById('cards-resultado');
+  c.innerHTML = '';
+  const q = res.quiz;
+
+  // 1. MEIAS-FACES
+  mkCard(c, '📸 Suas Meias-Faces', `
+    <div style="display: flex; gap: 8px; margin: 12px 0; flex-wrap: wrap;">
+      <img src="${res.imagens.meiaFaceEsquerda}" style="width: 30%; border-radius: 8px; border: 1px solid #333;">
+      <img src="${res.imagens.original}" style="width: 30%; border-radius: 8px; border: 1px solid #333;">
+      <img src="${res.imagens.meiaFaceDireita}" style="width: 30%; border-radius: 8px; border: 1px solid #333;">
+    </div>
+    <p style="font-size: 0.75rem; color: #888; text-align: center;">Esquerda × Original × Direita</p>
+  `);
+
+  // Se ainda está carregando
+  if (res.carregando) {
+    mkCard(c, '⏳ Gerando Protocolo', `
+      <div style="text-align: center; padding: 40px 24px; display: flex; flex-direction: column; align-items: center; justify-content: center; min-height: 180px;">
+        <div style="
+          width: 56px; height: 56px; margin-bottom: 24px;
+          border-radius: 50%;
+          border: 4px solid #1a1a1a;
+          border-top-color: #E85D9F;
+          border-right-color: #6DD5ED;
+          animation: spin 0.8s linear infinite, pulse 2s ease-in-out infinite;
+          box-shadow: 0 0 30px rgba(196, 151, 58, 0.5);
+        "></div>
+        <p style="color: #E85D9F; font-weight: 600; font-size: 0.95rem; letter-spacing: 1px; margin-bottom: 12px;">ANALISANDO FRAMEWORK</p>
+        <p class="protocolo-status-msg" style="font-size: 0.85rem; color: #E85D9F; margin: 8px 0 0 0; line-height: 1.6; min-height: 20px; transition: color 0.3s ease;">
+          📊 Processando assimetria facial
+        </p>
+        <p style="font-size: 0.75rem; color: #666; margin-top: 16px; margin-bottom: 0;">
+          Sua IA especialista está gerando recomendações personalizadas...
+        </p>
+      </div>
+    `);
+    return;
+  }
+
+  // Se protocolo não foi gerado
+  if (!res.protocolo) {
+    mkCard(c, '⚠️ Protocolo', `
+      <p style="color: #ff9800;">Houve um erro ao gerar o protocolo. Por favor, tente novamente.</p>
+    `);
+    return;
+  }
+
+  // PROTOCOLO GERADO - exibir com as 4 seções
+  // Dividir o protocolo em seções
+  const secoes = res.protocolo.split('**');
+  let protocoloHTML = res.protocolo;
+
+  // Renderizar protocolo como um card único e bem formatado
+  const protocoloProcessado = protocoloHTML
+    .replace(/\*\*/g, '<strong style="color: #C4973A;">')
+    .replace(/<strong/g, '<strong')
+    .replace(/\n\n/g, '<br><br>');
+  const protocoloEstilizado = estilizarProtocolo(protocoloProcessado);
+
+  mkCard(c, '👑 Seu Protocolo IA Beauty', `
+    <div style="line-height: 1.7; color: #e0e0e0; font-size: 0.95rem;">
+      ${protocoloEstilizado}
+    </div>
+  `);
+
+  document.getElementById('json-raw').textContent = JSON.stringify(res.quiz, null, 2);
+
+  // Mostrar botão de download após 8 segundos
+  const btnPDF = document.getElementById('btn-download-pdf');
+  btnPDF.style.display = 'none';
+  setTimeout(() => {
+    btnPDF.style.display = 'block';
+    btnPDF.disabled = false;
+    btnPDF.style.opacity = '1';
+    btnPDF.style.cursor = 'pointer';
+  }, 8000);
+}
+
+function estilizarProtocolo(texto) {
+  // Encontra TUDO em CAIXA ALTA (palavras ou frases inteiras) e estiliza
+  return texto.replace(/\b([A-Z][A-Z\s\-—:À-Ú]*[A-Z])\b/g, (match) => {
+    // Evita estilizar coisas muito curtas (2 letras) ou muito longas (>100 chars)
+    if (match.length < 3 || match.length > 100) return match;
+    return `<span class="titulo-protocolo">${match}</span>`;
+  });
+}
+
+function mkCard(c, t, h) { const el = document.createElement('div'); el.className = 'resultado-card'; el.innerHTML = `<h3>${t}</h3>${h}`; c.appendChild(el); }
+
+document.getElementById('btn-toggle-json').addEventListener('click', () => {
+  const raw=document.getElementById('json-raw'), btn=document.getElementById('btn-toggle-json');
+  const on = raw.style.display==='block'; raw.style.display=on?'none':'block';
+  btn.textContent=on?'{ } Ver JSON completo':'{ } Ocultar JSON';
+});
+document.getElementById('btn-copiar-json').addEventListener('click', async () => {
+  const btn=document.getElementById('btn-copiar-json');
+  try { await navigator.clipboard.writeText(JSON.stringify(S.resultado,null,2)); btn.textContent='Copiado!'; setTimeout(()=>btn.textContent='Copiar JSON',2000); }
+  catch(_){ btn.textContent='Erro ao copiar'; }
+});
+document.getElementById('btn-nova-analise').addEventListener('click', () => {
+  S.capturedImg=null; S.quiz={}; S.resultado=null; ultimosLandmarks=null;
+  cancelarContagem(); encaixado=false; okFrames=0;
+  const ctx=maskCanvas.getContext('2d'); ctx.clearRect(0,0,maskCanvas.width,maskCanvas.height);
+  crossH.classList.remove('hide'); crossV.classList.remove('hide'); crossDot.classList.remove('hide');
+  statusText.textContent='Centralize seu rosto'; statusText.className='hint';
+  document.getElementById('chat').innerHTML='';
+  mpLoading.style.display='flex';
+  show('sec-camera'); iniciarCamera();
+});
+
+// ─────────────────────────────────────────────
+//  CORTE VISUAL - GERAÇÃO COM IA
+// ─────────────────────────────────────────────
+document.getElementById('btn-download-pdf').addEventListener('click', async () => {
+  try {
+    console.log('🔄 Gerando PDF...');
+
+    const meiasFacesImages = [];
+    try {
+      const leftCanvas = document.getElementById('leftCanvas');
+      const origCanvas = document.getElementById('origCanvas');
+      const rightCanvas = document.getElementById('rightCanvas');
+
+      if (leftCanvas && origCanvas && rightCanvas) {
+        meiasFacesImages.push(leftCanvas.toDataURL('image/png'));
+        meiasFacesImages.push(origCanvas.toDataURL('image/png'));
+        meiasFacesImages.push(rightCanvas.toDataURL('image/png'));
+      }
+    } catch (e) {
+      console.log('Aviso:', e);
+    }
+
+    const nomeUsuaria = S.nomeUsuaria || 'Usuária';
+    const protocolo = S.resultado?.protocolo || '';
+
+    const resultado = await gerarPDFProtocolo(nomeUsuaria, protocolo, meiasFacesImages.length === 3 ? meiasFacesImages : null);
+    if (resultado) {
+      console.log('✅ PDF gerado e baixado!');
+    }
+  } catch (erro) {
+    console.error('❌ Erro:', erro);
+  }
+});
+
+
+// ─────────────────────────────────────────────
+//  INICIAR
+// ─────────────────────────────────────────────
+iniciarCamera();
+</script>
+<script src="lib/gerador-pdf.js"></script>
+<script src="lib/dossie-generator.js"></script>
+<script src="system-prompt-magicface.js"></script>
+<script src="protocolo-gerador.js"></script>
+</body>
+</html>

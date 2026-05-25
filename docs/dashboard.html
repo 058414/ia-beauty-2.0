@@ -1,0 +1,537 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>🎨 Dashboard de Projetos - Bruno Alves</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 40px 20px;
+            color: #333;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        .header {
+            text-align: center;
+            color: white;
+            margin-bottom: 50px;
+        }
+
+        .header h1 {
+            font-size: 2.5em;
+            margin-bottom: 10px;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
+        }
+
+        .header p {
+            font-size: 1.1em;
+            opacity: 0.9;
+        }
+
+        .filter-section {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 30px;
+            flex-wrap: wrap;
+            justify-content: center;
+        }
+
+        .filter-btn {
+            padding: 8px 16px;
+            border: none;
+            border-radius: 20px;
+            cursor: pointer;
+            font-size: 0.95em;
+            background: white;
+            color: #667eea;
+            transition: all 0.3s;
+            font-weight: 500;
+        }
+
+        .filter-btn:hover,
+        .filter-btn.active {
+            background: #667eea;
+            color: white;
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(0,0,0,0.2);
+        }
+
+        .projects-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+            gap: 25px;
+            margin-bottom: 40px;
+        }
+
+        .project-card {
+            background: white;
+            border-radius: 12px;
+            padding: 25px;
+            cursor: pointer;
+            transition: all 0.3s;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+            border-left: 5px solid #667eea;
+        }
+
+        .project-card:hover {
+            transform: translateY(-8px);
+            box-shadow: 0 12px 25px rgba(0,0,0,0.15);
+            border-left-color: #764ba2;
+        }
+
+        .project-card.p1 { border-left-color: #ff6b6b; }
+        .project-card.p2 { border-left-color: #4ecdc4; }
+        .project-card.p3 { border-left-color: #ffd93d; }
+        .project-card.p4 { border-left-color: #a8e6cf; }
+        .project-card.p5 { border-left-color: #c7b3e5; }
+
+        .project-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: start;
+            margin-bottom: 12px;
+        }
+
+        .project-card h2 {
+            font-size: 1.4em;
+            color: #333;
+            margin-bottom: 8px;
+        }
+
+        .priority-badge {
+            display: inline-block;
+            padding: 4px 10px;
+            border-radius: 12px;
+            font-size: 0.8em;
+            font-weight: bold;
+            color: white;
+        }
+
+        .priority-badge.p1 { background: #ff6b6b; }
+        .priority-badge.p2 { background: #4ecdc4; }
+        .priority-badge.p3 { background: #ffd93d; color: #333; }
+        .priority-badge.p4 { background: #a8e6cf; color: #333; }
+        .priority-badge.p5 { background: #c7b3e5; }
+
+        .project-desc {
+            color: #666;
+            font-size: 0.95em;
+            margin-bottom: 15px;
+            line-height: 1.5;
+        }
+
+        .project-status {
+            display: inline-block;
+            padding: 4px 8px;
+            border-radius: 6px;
+            font-size: 0.85em;
+            background: #f0f0f0;
+            color: #555;
+            margin-bottom: 15px;
+        }
+
+        .project-meta {
+            font-size: 0.85em;
+            color: #999;
+            margin-bottom: 12px;
+            line-height: 1.6;
+        }
+
+        .project-meta strong {
+            color: #667eea;
+        }
+
+        .tags {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 6px;
+            margin-bottom: 15px;
+        }
+
+        .tag {
+            display: inline-block;
+            padding: 3px 8px;
+            background: #f0f0f0;
+            border-radius: 10px;
+            font-size: 0.75em;
+            color: #667eea;
+            font-weight: 500;
+        }
+
+        .action-buttons {
+            display: flex;
+            gap: 10px;
+            margin-top: 15px;
+        }
+
+        .btn {
+            flex: 1;
+            padding: 10px;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 0.9em;
+            font-weight: 600;
+            transition: all 0.3s;
+            text-align: center;
+            text-decoration: none;
+        }
+
+        .btn-open {
+            background: #667eea;
+            color: white;
+        }
+
+        .btn-open:hover {
+            background: #764ba2;
+        }
+
+        .btn-sync {
+            background: #f0f0f0;
+            color: #667eea;
+            border: 2px solid #667eea;
+        }
+
+        .btn-sync:hover {
+            background: #667eea;
+            color: white;
+        }
+
+        .status-indicator {
+            display: inline-block;
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            margin-right: 5px;
+        }
+
+        .status-clean { background: #51cf66; }
+        .status-changes { background: #ffd93d; }
+        .status-nosync { background: #ff6b6b; }
+
+        .footer {
+            text-align: center;
+            color: white;
+            margin-top: 50px;
+            padding-top: 20px;
+            border-top: 1px solid rgba(255,255,255,0.2);
+        }
+
+        .footer small {
+            opacity: 0.8;
+        }
+
+        @media (max-width: 768px) {
+            .projects-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .header h1 {
+                font-size: 1.8em;
+            }
+        }
+
+        .modal {
+            display: none;
+            position: fixed;
+            z-index: 1;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0,0,0,0.5);
+        }
+
+        .modal-content {
+            background-color: white;
+            margin: 10% auto;
+            padding: 30px;
+            border-radius: 12px;
+            width: 90%;
+            max-width: 500px;
+            box-shadow: 0 4px 25px rgba(0,0,0,0.3);
+        }
+
+        .close {
+            color: #aaa;
+            float: right;
+            font-size: 28px;
+            font-weight: bold;
+            cursor: pointer;
+        }
+
+        .close:hover,
+        .close:focus {
+            color: #333;
+        }
+
+        .modal h2 {
+            color: #667eea;
+            margin-bottom: 15px;
+        }
+
+        .modal p {
+            color: #666;
+            margin-bottom: 10px;
+            line-height: 1.6;
+        }
+
+        .loading {
+            text-align: center;
+            padding: 20px;
+            color: #667eea;
+        }
+
+        .spinner {
+            display: inline-block;
+            width: 20px;
+            height: 20px;
+            border: 3px solid #f0f0f0;
+            border-top: 3px solid #667eea;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>🎨 Meus Projetos</h1>
+            <p>Clique em um projeto para começar a trabalhar</p>
+        </div>
+
+        <div class="filter-section">
+            <button class="filter-btn active" data-filter="all">Todos</button>
+            <button class="filter-btn" data-filter="p1">🔴 Prioridade 1</button>
+            <button class="filter-btn" data-filter="p2">🟢 Prioridade 2</button>
+            <button class="filter-btn" data-filter="active">⚡ Ativos</button>
+        </div>
+
+        <div class="projects-grid" id="projectsGrid">
+            <div class="loading">
+                <div class="spinner"></div>
+                <p>Carregando projetos...</p>
+            </div>
+        </div>
+
+        <div class="footer">
+            <small>Dashboard v1.0 | Última atualização: 2026-05-25</small>
+        </div>
+    </div>
+
+    <div id="projectModal" class="modal">
+        <div class="modal-content">
+            <span class="close">&times;</span>
+            <h2 id="modalTitle"></h2>
+            <p id="modalPath"></p>
+            <p id="modalStatus"></p>
+            <p id="modalInfo"></p>
+            <button class="btn btn-open" id="openProjectBtn">Abrir Projeto</button>
+        </div>
+    </div>
+
+    <script>
+        // Dados dos projetos (embutidos no HTML para sempre funcionar!)
+        const projectsData = {
+            "projetos": [
+                {
+                    "id": "ia-beauty-2.0",
+                    "nome": "IA BEAUTY 2.0",
+                    "descricao": "Análise facial & recomendação de corte de cabelo com MediaPipe",
+                    "caminho": "C:\\Users\\Usuário\\ia-beauty-2.0",
+                    "status": "Phase 4 - PDF Generation",
+                    "github": "058414/magicface",
+                    "url_prod": "https://ia-beauty-20-aoyaclpx8-brunno-alves-projects.vercel.app",
+                    "prioridade": 1,
+                    "tags": ["vision", "claude-api", "vercel"],
+                    "stack": "HTML/JS/Node.js/Vercel"
+                },
+                {
+                    "id": "magicface-main",
+                    "nome": "MagicFace (GitHub)",
+                    "descricao": "Versão GitHub oficial - camera detection + facial analysis",
+                    "caminho": "C:\\Users\\Usuário\\magicface",
+                    "status": "Phase 4 - Active Development",
+                    "github": "058414/magicface",
+                    "url_prod": "https://magicface-sand.vercel.app",
+                    "prioridade": 1,
+                    "tags": ["mediapipe", "facial-detection", "quiz"],
+                    "stack": "HTML/JS/MediaPipe/Canvas"
+                },
+                {
+                    "id": "estoquebeauty",
+                    "nome": "EstoqueBeauty",
+                    "descricao": "SaaS de gestão de estoque para colorações",
+                    "caminho": "C:\\Users\\Usuário\\Desktop\\estoquebeauty",
+                    "status": "Phase 1 - Dashboard",
+                    "github": "[não-confirmado]",
+                    "url_prod": "[em-desenvolvimento]",
+                    "prioridade": 2,
+                    "tags": ["saas", "estoque", "dashboard"],
+                    "stack": "Next.js/Claude Vision/Vercel"
+                },
+                {
+                    "id": "dieta-visual-v2",
+                    "nome": "Dieta Visual v2",
+                    "descricao": "Versão 2 - skill modular de análise facial",
+                    "caminho": "C:\\Users\\Usuário\\Desktop\\dieta-visual-v2",
+                    "status": "Phase 1 - Setup",
+                    "github": "[não-confirmado]",
+                    "url_prod": "[em-desenvolvimento]",
+                    "prioridade": 3,
+                    "tags": ["skill", "modular", "análise-facial"],
+                    "stack": "JavaScript/Modular"
+                },
+                {
+                    "id": "dieta-visual",
+                    "nome": "Dieta Visual (Original)",
+                    "descricao": "Versão original - quiz → protocolo PDF",
+                    "caminho": "C:\\Users\\Usuário\\Desktop\\dieta-visual",
+                    "status": "Phase 2 - Completo",
+                    "github": "[não-confirmado]",
+                    "url_prod": "[em-produção]",
+                    "prioridade": 4,
+                    "tags": ["saas", "pdf", "protocolo"],
+                    "stack": "Next.js/Anthropic API/Vercel"
+                },
+                {
+                    "id": "magicface-desktop",
+                    "nome": "MagicFace (Desktop)",
+                    "descricao": "Cópia local de backup do MagicFace",
+                    "caminho": "C:\\Users\\Usuário\\Desktop\\magicface",
+                    "status": "Backup",
+                    "github": "058414/magicface",
+                    "url_prod": "https://magicface-sand.vercel.app",
+                    "prioridade": 5,
+                    "tags": ["backup"],
+                    "stack": "HTML/JS"
+                }
+            ]
+        };
+
+        const grid = document.getElementById('projectsGrid');
+        const modal = document.getElementById('projectModal');
+        const closeBtn = document.querySelector('.close');
+        const filterBtns = document.querySelectorAll('.filter-btn');
+
+        // Carregar dados (já estão no HTML, não precisa fetch)
+        function loadProjects() {
+            renderProjects(projectsData.projetos);
+        }
+
+        function renderProjects(projects, filter = 'all') {
+            grid.innerHTML = '';
+
+            let filtered = projects;
+            if (filter !== 'all') {
+                filtered = projects.filter(p => {
+                    if (filter === 'p1') return p.prioridade === 1;
+                    if (filter === 'p2') return p.prioridade === 2;
+                    if (filter === 'active') return !p.status.includes('Backup');
+                    return true;
+                });
+            }
+
+            if (filtered.length === 0) {
+                grid.innerHTML = '<p style="color: white; grid-column: 1/-1; text-align: center;">Nenhum projeto encontrado.</p>';
+                return;
+            }
+
+            filtered.forEach(project => {
+                const statusClass = `p${project.prioridade}`;
+                const statusIndicator = project.remoto === 'configurado'
+                    ? '<span class="status-indicator status-clean"></span>Sincronizado'
+                    : '<span class="status-indicator status-nosync"></span>Não sincronizado';
+
+                const card = document.createElement('div');
+                card.className = `project-card ${statusClass}`;
+                card.innerHTML = `
+                    <div class="project-header">
+                        <h2>${project.nome}</h2>
+                        <span class="priority-badge ${statusClass}">P${project.prioridade}</span>
+                    </div>
+                    <p class="project-desc">${project.descricao}</p>
+                    <span class="project-status">${project.status}</span>
+                    <div class="project-meta">
+                        <div><strong>Stack:</strong> ${project.stack}</div>
+                        <div><strong>Status Git:</strong> ${statusIndicator}</div>
+                        <div><strong>Última sync:</strong> ${project.ultima_sync}</div>
+                    </div>
+                    <div class="tags">
+                        ${project.tags.map(tag => `<span class="tag">${tag}</span>`).join('')}
+                    </div>
+                    <div class="action-buttons">
+                        <button class="btn btn-open" onclick="openProject('${project.id}')">
+                            📂 Abrir Projeto
+                        </button>
+                    </div>
+                `;
+                grid.appendChild(card);
+            });
+        }
+
+        function openProject(projectId) {
+            const project = projectsData.projetos.find(p => p.id === projectId);
+            if (!project) return;
+
+            document.getElementById('modalTitle').textContent = project.nome;
+            document.getElementById('modalPath').innerHTML = `<strong>Caminho:</strong> ${project.caminho}`;
+            document.getElementById('modalStatus').innerHTML = `<strong>Status:</strong> ${project.status}`;
+            document.getElementById('modalInfo').innerHTML = `
+                <strong>GitHub:</strong> ${project.github}<br>
+                <strong>Stack:</strong> ${project.stack}<br>
+                <strong>Remoto:</strong> ${project.remoto}
+                ${project.url_prod !== '[em-desenvolvimento]' ? `<br><strong>Produção:</strong> <a href="${project.url_prod}" target="_blank">${project.url_prod}</a>` : ''}
+            `;
+
+            document.getElementById('openProjectBtn').onclick = () => {
+                console.log(`Abrindo projeto: ${project.caminho}`);
+                alert(`✅ Projeto selecionado: ${project.nome}\n\nCaminho: ${project.caminho}\n\nDigite na conversa: "trabalha em ${project.nome}"`);
+                modal.style.display = 'none';
+            };
+
+            modal.style.display = 'block';
+        }
+
+        // Filtros
+        filterBtns.forEach(btn => {
+            btn.addEventListener('click', () => {
+                filterBtns.forEach(b => b.classList.remove('active'));
+                btn.classList.add('active');
+                renderProjects(projectsData.projetos, btn.dataset.filter);
+            });
+        });
+
+        closeBtn.addEventListener('click', () => {
+            modal.style.display = 'none';
+        });
+
+        window.addEventListener('click', (event) => {
+            if (event.target === modal) {
+                modal.style.display = 'none';
+            }
+        });
+
+        // Carregador inicial
+        loadProjects();
+    </script>
+</body>
+</html>

@@ -1,0 +1,94 @@
+{
+  "projetos": [
+    {
+      "id": "ia-beauty-2.0",
+      "nome": "IA BEAUTY 2.0",
+      "descricao": "Análise facial & recomendação de corte de cabelo com MediaPipe",
+      "caminho": "C:\\Users\\Usuário\\ia-beauty-2.0",
+      "status": "Phase 4 - PDF Generation",
+      "github": "058414/magicface",
+      "url_prod": "https://ia-beauty-20-aoyaclpx8-brunno-alves-projects.vercel.app",
+      "prioridade": 1,
+      "tags": ["vision", "claude-api", "vercel"],
+      "ultima_sync": "2026-05-24",
+      "stack": "HTML/JS/Node.js/Vercel",
+      "remoto": "não-configurado"
+    },
+    {
+      "id": "magicface-main",
+      "nome": "MagicFace (GitHub)",
+      "descricao": "Versão GitHub oficial - camera detection + facial analysis",
+      "caminho": "C:\\Users\\Usuário\\magicface",
+      "status": "Phase 4 - Active Development",
+      "github": "058414/magicface",
+      "url_prod": "https://magicface-sand.vercel.app",
+      "prioridade": 1,
+      "tags": ["mediapipe", "facial-detection", "quiz"],
+      "ultima_sync": "2026-05-21",
+      "stack": "HTML/JS/MediaPipe/Canvas",
+      "remoto": "configurado"
+    },
+    {
+      "id": "estoquebeauty",
+      "nome": "EstoqueBeauty",
+      "descricao": "SaaS de gestão de estoque para colorações (matriz + app profissional)",
+      "caminho": "C:\\Users\\Usuário\\Desktop\\estoquebeauty",
+      "status": "Phase 1 - Dashboard",
+      "github": "[não-confirmado]",
+      "url_prod": "[em-desenvolvimento]",
+      "prioridade": 2,
+      "tags": ["saas", "estoque", "dashboard"],
+      "ultima_sync": "2026-05-20",
+      "stack": "Next.js/Claude Vision/Vercel",
+      "remoto": "configurado"
+    },
+    {
+      "id": "dieta-visual-v2",
+      "nome": "Dieta Visual v2",
+      "descricao": "Versão 2 - skill modular de análise facial",
+      "caminho": "C:\\Users\\Usuário\\Desktop\\dieta-visual-v2",
+      "status": "Phase 1 - Setup",
+      "github": "[não-confirmado]",
+      "url_prod": "[em-desenvolvimento]",
+      "prioridade": 3,
+      "tags": ["skill", "modular", "análise-facial"],
+      "ultima_sync": "2026-05-16",
+      "stack": "JavaScript/Modular",
+      "remoto": "não-configurado"
+    },
+    {
+      "id": "dieta-visual",
+      "nome": "Dieta Visual (Original)",
+      "descricao": "Versão original - quiz → protocolo PDF via agente Anthropic",
+      "caminho": "C:\\Users\\Usuário\\Desktop\\dieta-visual",
+      "status": "Phase 2 - Completo",
+      "github": "[não-confirmado]",
+      "url_prod": "[em-produção]",
+      "prioridade": 4,
+      "tags": ["saas", "pdf", "protocolo"],
+      "ultima_sync": "2026-05-16",
+      "stack": "Next.js/Anthropic API/Vercel",
+      "remoto": "não-configurado"
+    },
+    {
+      "id": "magicface-desktop",
+      "nome": "MagicFace (Desktop)",
+      "descricao": "Cópia local de backup do MagicFace",
+      "caminho": "C:\\Users\\Usuário\\Desktop\\magicface",
+      "status": "Backup",
+      "github": "058414/magicface",
+      "url_prod": "https://magicface-sand.vercel.app",
+      "prioridade": 5,
+      "tags": ["backup"],
+      "ultima_sync": "2026-05-16",
+      "stack": "HTML/JS",
+      "remoto": "configurado"
+    }
+  ],
+  "config": {
+    "data_criacao": "2026-05-25",
+    "versao": "1.0",
+    "autor": "Bruno Alves",
+    "atualizacao_automatica": true
+  }
+}
