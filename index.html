@@ -812,30 +812,6 @@
       document.getElementById(`painel-q${num}`).classList.remove('visible');
       if (num === 1) pararCamera();
     }
-
-    function abrirQuadrante4() {
-      const conteudo = document.getElementById('conteudo-q4');
-      conteudo.innerHTML = `
-        <div style="max-width: 800px; margin: 40px auto; text-align: center;">
-          <h2 style="color: #6DD5ED; font-size: 1.5rem; margin-bottom: 30px;">🔮 Exploração</h2>
-          <p style="color: #ccc; font-size: 1.1rem; line-height: 1.8; margin-bottom: 40px;">
-            Este quadrante é um espaço em branco para futuras funcionalidades.
-          </p>
-          <div style="background: rgba(109, 213, 237, 0.1); border: 1px dashed rgba(109, 213, 237, 0.4); padding: 30px; border-radius: 12px; margin-bottom: 40px;">
-            <h3 style="color: #6DD5ED; margin-bottom: 20px;">💭 Ideias para o Futuro:</h3>
-            <ul style="color: #aaa; text-align: left; max-width: 400px; margin: 0 auto; line-height: 2;">
-              <li>📸 Galeria de cortes por biotipo</li>
-              <li>🎨 Simulador visual (corte no seu rosto)</li>
-              <li>📊 Histórico de análises</li>
-              <li>💾 Compartilhamento de protocolo</li>
-              <li>⭐ Feedback da usuária</li>
-              <li>🔄 Re-análise em diferentes momentos</li>
-            </ul>
-          </div>
-          <button class="quadrante-btn" onclick="fecharPainel(4)">← Voltar</button>
-        </div>
-      `;
-    }
   </script>
 
 </body>
