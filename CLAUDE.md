@@ -381,3 +381,18 @@ ia-beauty-2.0/
 **Versão:** 2.0 (Refatoração Arquitetural)  
 **Responsável:** Bruno Alves  
 **Referência:** MagicFace v1 (magicface-sand.vercel.app)
+
+---
+
+## 🔒 CONSOLIDAÇÃO FINAL (26/05/2026)
+
+**Projetos duplicados foram consolidados:**
+- ❌ [ARCHIVED] IA BEAUT (Desktop) — deletado
+- ❌ [ARCHIVED] magicface (cópia local) — deletado
+- ✅ **ÚNICO PROJETO:** IA BEAUTY 2.0 (058414/ia-beauty-2.0)
+
+**Regra clara:** SEMPRE trabalhar em `C:\Users\Usuário\ia-beauty-2.0`
+**GitHub oficial:** `058414/ia-beauty-2.0`
+**Produção oficial:** `https://ia-beauty-20-novo.vercel.app`
+
+Sem mais confusão de 3 projetos iguais! 🎯
