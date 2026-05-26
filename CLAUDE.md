@@ -2,12 +2,12 @@
 
 ## ✅ Status do Projeto
 
-- **Status:** 🔴 Q1 PAUSADO — Problema com máscara facial (círculo branco pequeno)
-- **Última atualização:** 2026-05-25 (Noite - SESSÃO INTERROMPIDA)
-- **Commit:** c311b3e (Remove distorted mask scales - use natural MediaPipe points)
-- **URL Produção:** https://ia-beauty-20-aoyaclpx8-brunno-alves-projects.vercel.app
-- **Problema:** Máscara facial detectando com escalas distorcidas, causando círculo pequeno no centro do rosto
-- **Tentativas:** Múltiplas ajustes de proporção (2.4:1, escalas X/Y diferentes) — nenhuma funcionou corretamente
+- **Status:** 🟢 Q1 FUNCIONAL — Câmera + Detecção de Assimetria OK
+- **Última atualização:** 2026-05-26 (Manhã)
+- **Commit:** 453b527 (Force Vercel rebuild - clear cache)
+- **URL Produção:** https://ia-beauty-20-novo.vercel.app
+- **Problema Anterior:** Máscara facial + Assimetria invertida — RESOLVIDO
+- **Status Atual:** Sem máscara, assimetria detecta corretamente, fluxo funcional
 
 ### 🔴 PRÓXIMA SESSÃO - COMO RETOMAR
 
