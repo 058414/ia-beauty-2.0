@@ -2,9 +2,9 @@
 
 ## ✅ Status do Projeto
 
-- **Status:** 🟢 Q1, Q2, Q3, Q4 COMPLETOS + BUGS CRÍTICOS FIXOS
-- **Última atualização:** 2026-05-26 (Madrugada)
-- **Commit:** d9ce608 (fix: Q3 completion state and remove duplicate Q4 function)
+- **Status:** 🟢 Q1, Q2, Q3, Q4 COMPLETOS + API ENDPOINT CORRIGIDA
+- **Última atualização:** 2026-05-26 (Noite - Teste de Fluxo Completo)
+- **Commit:** 4222193 (fix: Simplify vercel.json to allow API routes and static files)
 - **URL Produção:** https://ia-beauty-20-novo.vercel.app ✅ FUNCIONANDO
 - **GitHub:** https://github.com/058414/ia-beauty-2.0 ✅ SINCRONIZADO
 - **Status Atual:** 
@@ -37,6 +37,29 @@
 - Arquivo: `index.html`
 
 **Commit:** `d9ce608` - fix: Q3 completion state and remove duplicate Q4 function
+
+### 🔧 CORREÇÕES DA API & DEPLOYMENT - SESSÃO 26/05/2026 (NOITE - TESTE COMPLETO)
+
+**Problema Identificado:** API endpoint `/api/gerar-sintese` retornava 501 NOT_FOUND em produção
+
+**Causa Raiz:** Combinação de 3 problemas:
+1. Python HTTP server em localhost:3000 bloqueava teste (não suporta serverless functions)
+2. @anthropic-ai/sdk não estava no package.json
+3. Endpoint estava em ESM syntax (export default) → Vercel precisa CommonJS
+
+**Soluções Implementadas:**
+- ✅ Adicionado `@anthropic-ai/sdk` ao `package.json` como dependência
+- ✅ Convertido `/api/gerar-sintese.js` de ESM para CommonJS syntax
+- ✅ Simplificado `vercel.json` para {} vazio (remove build issues)
+- ✅ Removido Python HTTP server de :3000
+
+**Commits desta sessão:**
+1. `2c4cdef` - fix: Allow API routes to be served correctly in Vercel
+2. `c5c43e3` - fix: Convert API to CommonJS for Vercel serverless compatibility
+3. `a093f28` - fix: Add Anthropic SDK to dependencies for API endpoint
+4. `4222193` - fix: Simplify vercel.json to allow API routes and static files
+
+**Status Atual:** Vercel em processo de rebuild com as correções. Monitorando até API responder com sucesso.
 
 ### 🟢 IMPLEMENTAÇÃO CONCLUÍDA - SESSÃO 26/05/2026 (MADRUGADA - PARTE 1)
 
