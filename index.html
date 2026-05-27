@@ -828,9 +828,14 @@
         const btnCamera = document.getElementById('btn-abrir-camera-ios');
         if (btnCamera) {
           btnCamera.addEventListener('click', abrirQuadrante1);
-          console.log('✅ Event listener attached to camera button');
+          btnCamera.addEventListener('touchstart', abrirQuadrante1);
+          console.log('✅ Event listeners attached to camera button');
+          alert('✅ Botão pronto para clicar!');
+        } else {
+          alert('❌ ERRO: Botão não encontrado no DOM!');
+          console.error('Botão com ID btn-abrir-camera-ios não encontrado');
         }
-      }, 0);
+      }, 100);
     }
 
     function fecharPainel(num) {
