@@ -2,20 +2,105 @@
 
 ## ✅ Status do Projeto
 
-- **Status:** 🟢 Q1, Q2, Q3, Q4 COMPLETOS + PERSONALIZAÇÃO INTEGRADA
-- **Última atualização:** 2026-05-26 (Madrugada)
-- **Commit:** 58aa0f7 (feat: Add personalized communication with user's name throughout all quadrants)
+- **Status:** 🟢 Q1, Q2, Q3, Q4 COMPLETOS + CÂMERA iOS CORRIGIDA
+- **Última atualização:** 2026-05-27 (Madrugada - Câmera iOS Funcionando)
+- **Commit:** b81df5d (fix: Throw MediaPipe error instead of returning silently)
 - **URL Produção:** https://ia-beauty-20-novo.vercel.app ✅ FUNCIONANDO
+- **GitHub:** https://github.com/058414/ia-beauty-2.0 ✅ SINCRONIZADO
 - **Status Atual:** 
-  - ✅ Câmera operacional (MediaPipe FaceLandmarker 468 pontos)
+  - ✅ Câmera operacional em DESKTOP e iOS (MediaPipe FaceLandmarker 468 pontos)
   - ✅ Detecção de assimetria corrigida (lado direito/esquerdo preciso)
   - ✅ Q1 (Rosto): Análise facial completa com meias-faces
   - ✅ Q2 (Gola + Adereços): Exploração educacional com volume de informação
   - ✅ Q3 (Corpo): Análise de biotipos e linhas do corpo
   - ✅ Q4 (Síntese Final): Integração com Claude API
   - ✅ **PERSONALIZAÇÃO:** Nome da usuária em 10+ funções através de Q2, Q3 e Q4
+  - ✅ **iOS Safari:** Câmera agora funciona corretamente no iPhone
 
-### 🟢 IMPLEMENTAÇÃO CONCLUÍDA - SESSÃO 26/05/2026 (MADRUGADA)
+### 🔧 CÂMERA iOS CORRIGIDA - SESSÃO 27/05/2026 (MADRUGADA)
+
+**Problema:** Câmera não funcionava em iOS Safari (clique no botão não respondia)
+
+**Causa Raiz:** Múltiplos problemas em cascata:
+1. `onclick` inline não funciona bem em iOS Safari
+2. `navigator.mediaDevices.getUserMedia()` ficava "hung" (nunca rejeitava)
+3. Mensagens de erro eram silenciosas (sem feedback ao usuário)
+4. MediaPipe error era silenciado com `return;`
+5. `vercel.json` estava servindo app.js como serverless em vez de servidor Express
+
+**Soluções Implementadas:**
+1. ✅ Mudei de `onclick` inline para `addEventListener` (mais confiável em iOS)
+2. ✅ Adicionei `Promise.race()` com timeout de 10s ao `getUserMedia()`
+3. ✅ Adicionei verificação explícita de `navigator.mediaDevices` existência
+4. ✅ Mudei `return;` para `throw error;` no MediaPipe catch
+5. ✅ Removi `vercel.json` para deixar Vercel usar padrão Express
+6. ✅ Removi atualizações de DOM que causavam erros de referência null
+
+**Commits desta sessão:**
+- `9ec0a9a` - Add null check for navigator.mediaDevices
+- `cc542be` - Remove setTimeout delay and improve error message
+- `8df47c5` - Add timeout to camera request (10 segundos)
+- `054a480` - Use addEventListener instead of onclick
+- `d65b5e4` - Remove status update attempts (null reference)
+- `c115b1d` - Remove vercel.json
+- `b81df5d` - Throw MediaPipe error instead of silent fail
+
+**Status:** ✅ CÂMERA FUNCIONANDO EM iOS!
+
+**Pendente para Próxima Sessão:**
+- [ ] Remover popups de debug (alerts)
+- [ ] Ajustar detalhes do protocolo final
+- [ ] Testar fluxo completo Q1→Q2→Q3→Q4 no iOS
+- [ ] Gerar PDF e validar conteúdo
+
+---
+
+### 🔧 BUGS CRÍTICOS FIXADOS - SESSÃO 26/05/2026 (MADRUGADA - PARTE 2)
+
+**Bug #1: Q3 não marcava como completo**
+- Problema: Ao finalizar Q3, Q4 permanecia vazio/inacessível
+- Causa: `finalizarQ3()` não armazenava em `state.corpo` (apenas em `q3State`)
+- Solução: Adicionar `state.corpo.biotipo = biotipo; state.corpo.linhasCorpo = linhasCorpo; state.corpo.comprimentoPreferido = comprimento;`
+- Arquivo: `lib/quadrante-3.js` (linhas 244-246)
+
+**Bug #2: Validação de campo "franja" inexistente**
+- Problema: Alert "Responda todas as perguntas" mesmo com 3 perguntas respondidas
+- Causa: Q3 tem 3 perguntas (P1, P2, P3) mas validava 4 incluindo "franja"
+- Solução: Remover `const franja = form.querySelector('input[name="franja"]:checked')?.value;` e validação associada
+- Arquivo: `lib/quadrante-3.js` (linhas 229-234)
+
+**Bug #3: Q4 vazio (exibia "Em Branco - Futuras Funcionalidades")**
+- Problema: Q4 mostrava versão desatualizada em vez de consolidação + Claude API
+- Causa: Função `abrirQuadrante4()` duplicada em `index.html` (versão antiga) sobrescrevia `lib/quadrante-4.js`
+- Solução: Remover definição duplicada de `index.html` linhas 816-838
+- Arquivo: `index.html`
+
+**Commit:** `d9ce608` - fix: Q3 completion state and remove duplicate Q4 function
+
+### 🔧 CORREÇÕES DA API & DEPLOYMENT - SESSÃO 26/05/2026 (NOITE - TESTE COMPLETO)
+
+**Problema Identificado:** API endpoint `/api/gerar-sintese` retornava 501 NOT_FOUND em produção
+
+**Causa Raiz:** Combinação de 3 problemas:
+1. Python HTTP server em localhost:3000 bloqueava teste (não suporta serverless functions)
+2. @anthropic-ai/sdk não estava no package.json
+3. Endpoint estava em ESM syntax (export default) → Vercel precisa CommonJS
+
+**Soluções Implementadas:**
+- ✅ Adicionado `@anthropic-ai/sdk` ao `package.json` como dependência
+- ✅ Convertido `/api/gerar-sintese.js` de ESM para CommonJS syntax
+- ✅ Simplificado `vercel.json` para {} vazio (remove build issues)
+- ✅ Removido Python HTTP server de :3000
+
+**Commits desta sessão:**
+1. `2c4cdef` - fix: Allow API routes to be served correctly in Vercel
+2. `c5c43e3` - fix: Convert API to CommonJS for Vercel serverless compatibility
+3. `a093f28` - fix: Add Anthropic SDK to dependencies for API endpoint
+4. `4222193` - fix: Simplify vercel.json to allow API routes and static files
+
+**Status Atual:** Vercel em processo de rebuild com as correções. Monitorando até API responder com sucesso.
+
+### 🟢 IMPLEMENTAÇÃO CONCLUÍDA - SESSÃO 26/05/2026 (MADRUGADA - PARTE 1)
 
 **Personalization Enhancement Complete:**
 - ✅ Q2 (Gola + Adereços) — 4 funções com personalization:
@@ -474,8 +559,44 @@ ia-beauty-2.0/
 - ❌ [ARCHIVED] magicface (cópia local) — deletado
 - ✅ **ÚNICO PROJETO:** IA BEAUTY 2.0 (058414/ia-beauty-2.0)
 
-**Regra clara:** SEMPRE trabalhar em `C:\Users\Usuário\ia-beauty-2.0`
+**Regra clara:** SEMPRE trabalhar em `C:\Users\Usuário\ia-beauty-2.0-novo`
 **GitHub oficial:** `058414/ia-beauty-2.0`
 **Produção oficial:** `https://ia-beauty-20-novo.vercel.app`
 
 Sem mais confusão de 3 projetos iguais! 🎯
+
+---
+
+## 🚀 COMO ACESSAR O PROJETO NA PRÓXIMA SESSÃO
+
+### **OPÇÃO 1: Via Dashboard (Recomendado)**
+1. Abra: `C:\Users\Usuário\PROJETOS_DASHBOARD.html` (no navegador)
+2. Clique no card "IA BEAUTY 2.0"
+3. Dashboard abre o projeto automático
+
+### **OPÇÃO 2: Direto pelo terminal**
+```bash
+cd "C:\Users\Usuário\ia-beauty-2.0-novo"
+git status                # Ver status
+code .                    # Abrir VS Code (ou seu editor)
+vercel deploy --prod      # Deploy (se necessário)
+```
+
+### **OPÇÃO 3: Acessar a produção**
+- **URL:** https://ia-beauty-20-novo.vercel.app
+- **GitHub:** https://github.com/058414/ia-beauty-2.0
+
+### **Status Salvo (26/05/2026 - Noite)**
+- ✅ Código local: `C:\Users\Usuário\ia-beauty-2.0-novo`
+- ✅ GitHub: Sincronizado (commit 1989e5a)
+- ✅ Vercel: Em produção (READY)
+- ✅ Q1, Q2, Q3, Q4 todos funcionando
+- ✅ PDF Premium com protocolo personalizado
+- ✅ Câmera operacional (sem máscara bugada)
+
+### **Se Algo Quebrar**
+1. Confira o commit atual: `git log --oneline -1`
+2. Se necessário, volte para: `git reset --hard 1989e5a`
+3. Deploy: `vercel deploy --prod --force`
+
+**Próxima sessão começará exatamente daqui!** 🎯
