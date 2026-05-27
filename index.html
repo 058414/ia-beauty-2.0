@@ -298,18 +298,29 @@
   <script src="lib/quadrante-4.js"></script>
   <script>
     // Estado global para armazenar dados da usuária
-    let usuariaData = {
+    // Carrega do localStorage se existir, senão cria novo
+    let usuariaData = JSON.parse(localStorage.getItem('usuariaData')) || {
       nome: '',
       formato: '',
       desconforto: '',
       essencia: '',
       contexto: '',
       versaoEscolhida: '',
+      q1FotoCaptured: false,
+      q2Completo: false,
       assimetria: {
         lado_alto: 'direito',
         lado_baixo: 'esquerdo',
         diferenca: 0
-      }
+      },
+      rosto: {},
+      corpo: {}
+    };
+
+    // Função para salvar usuariaData no localStorage
+    function salvarUsuariaData() {
+      localStorage.setItem('usuariaData', JSON.stringify(usuariaData));
+      console.log('usuariaData salvo no localStorage', usuariaData);
     };
 
     // REFLEXÃO SER vs ESTAR — ROBUSTA
@@ -521,6 +532,7 @@
 
     function selecionarVersao(tipo) {
       usuariaData.versaoEscolhida = tipo;
+      salvarUsuariaData();
       mostrarConfirmacaoFinal();
     }
 
@@ -676,6 +688,10 @@
     }
 
     function finalizarReflexao() {
+      // CRÍTICO: Marcar Q1 como completo
+      usuariaData.q1FotoCaptured = true;
+      salvarUsuariaData();
+
       fecharPainel(1);
       atualizarStatusBadge(1);
       // Abrir Q2 automaticamente após reflexão
