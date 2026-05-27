@@ -2,9 +2,9 @@
 
 ## ✅ Status do Projeto
 
-- **Status:** 🟢 Q1, Q2, Q3, Q4 COMPLETOS + PDF PREMIUM IMPLEMENTADO
-- **Última atualização:** 2026-05-26 (Noite/Madrugada)
-- **Commit:** 1989e5a (fix: Correct Q2 completion check logic)
+- **Status:** 🟢 Q1, Q2, Q3, Q4 COMPLETOS + BUGS CRÍTICOS FIXOS
+- **Última atualização:** 2026-05-26 (Madrugada)
+- **Commit:** d9ce608 (fix: Q3 completion state and remove duplicate Q4 function)
 - **URL Produção:** https://ia-beauty-20-novo.vercel.app ✅ FUNCIONANDO
 - **GitHub:** https://github.com/058414/ia-beauty-2.0 ✅ SINCRONIZADO
 - **Status Atual:** 
@@ -16,7 +16,29 @@
   - ✅ Q4 (Síntese Final): Integração com Claude API
   - ✅ **PERSONALIZAÇÃO:** Nome da usuária em 10+ funções através de Q2, Q3 e Q4
 
-### 🟢 IMPLEMENTAÇÃO CONCLUÍDA - SESSÃO 26/05/2026 (MADRUGADA)
+### 🔧 BUGS CRÍTICOS FIXADOS - SESSÃO 26/05/2026 (MADRUGADA - PARTE 2)
+
+**Bug #1: Q3 não marcava como completo**
+- Problema: Ao finalizar Q3, Q4 permanecia vazio/inacessível
+- Causa: `finalizarQ3()` não armazenava em `state.corpo` (apenas em `q3State`)
+- Solução: Adicionar `state.corpo.biotipo = biotipo; state.corpo.linhasCorpo = linhasCorpo; state.corpo.comprimentoPreferido = comprimento;`
+- Arquivo: `lib/quadrante-3.js` (linhas 244-246)
+
+**Bug #2: Validação de campo "franja" inexistente**
+- Problema: Alert "Responda todas as perguntas" mesmo com 3 perguntas respondidas
+- Causa: Q3 tem 3 perguntas (P1, P2, P3) mas validava 4 incluindo "franja"
+- Solução: Remover `const franja = form.querySelector('input[name="franja"]:checked')?.value;` e validação associada
+- Arquivo: `lib/quadrante-3.js` (linhas 229-234)
+
+**Bug #3: Q4 vazio (exibia "Em Branco - Futuras Funcionalidades")**
+- Problema: Q4 mostrava versão desatualizada em vez de consolidação + Claude API
+- Causa: Função `abrirQuadrante4()` duplicada em `index.html` (versão antiga) sobrescrevia `lib/quadrante-4.js`
+- Solução: Remover definição duplicada de `index.html` linhas 816-838
+- Arquivo: `index.html`
+
+**Commit:** `d9ce608` - fix: Q3 completion state and remove duplicate Q4 function
+
+### 🟢 IMPLEMENTAÇÃO CONCLUÍDA - SESSÃO 26/05/2026 (MADRUGADA - PARTE 1)
 
 **Personalization Enhancement Complete:**
 - ✅ Q2 (Gola + Adereços) — 4 funções com personalization:
