@@ -2,19 +2,58 @@
 
 ## ✅ Status do Projeto
 
-- **Status:** 🟢 Q1, Q2, Q3, Q4 COMPLETOS + API ENDPOINT CORRIGIDA
-- **Última atualização:** 2026-05-26 (Noite - Teste de Fluxo Completo)
-- **Commit:** 4222193 (fix: Simplify vercel.json to allow API routes and static files)
+- **Status:** 🟢 Q1, Q2, Q3, Q4 COMPLETOS + CÂMERA iOS CORRIGIDA
+- **Última atualização:** 2026-05-27 (Madrugada - Câmera iOS Funcionando)
+- **Commit:** b81df5d (fix: Throw MediaPipe error instead of returning silently)
 - **URL Produção:** https://ia-beauty-20-novo.vercel.app ✅ FUNCIONANDO
 - **GitHub:** https://github.com/058414/ia-beauty-2.0 ✅ SINCRONIZADO
 - **Status Atual:** 
-  - ✅ Câmera operacional (MediaPipe FaceLandmarker 468 pontos)
+  - ✅ Câmera operacional em DESKTOP e iOS (MediaPipe FaceLandmarker 468 pontos)
   - ✅ Detecção de assimetria corrigida (lado direito/esquerdo preciso)
   - ✅ Q1 (Rosto): Análise facial completa com meias-faces
   - ✅ Q2 (Gola + Adereços): Exploração educacional com volume de informação
   - ✅ Q3 (Corpo): Análise de biotipos e linhas do corpo
   - ✅ Q4 (Síntese Final): Integração com Claude API
   - ✅ **PERSONALIZAÇÃO:** Nome da usuária em 10+ funções através de Q2, Q3 e Q4
+  - ✅ **iOS Safari:** Câmera agora funciona corretamente no iPhone
+
+### 🔧 CÂMERA iOS CORRIGIDA - SESSÃO 27/05/2026 (MADRUGADA)
+
+**Problema:** Câmera não funcionava em iOS Safari (clique no botão não respondia)
+
+**Causa Raiz:** Múltiplos problemas em cascata:
+1. `onclick` inline não funciona bem em iOS Safari
+2. `navigator.mediaDevices.getUserMedia()` ficava "hung" (nunca rejeitava)
+3. Mensagens de erro eram silenciosas (sem feedback ao usuário)
+4. MediaPipe error era silenciado com `return;`
+5. `vercel.json` estava servindo app.js como serverless em vez de servidor Express
+
+**Soluções Implementadas:**
+1. ✅ Mudei de `onclick` inline para `addEventListener` (mais confiável em iOS)
+2. ✅ Adicionei `Promise.race()` com timeout de 10s ao `getUserMedia()`
+3. ✅ Adicionei verificação explícita de `navigator.mediaDevices` existência
+4. ✅ Mudei `return;` para `throw error;` no MediaPipe catch
+5. ✅ Removi `vercel.json` para deixar Vercel usar padrão Express
+6. ✅ Removi atualizações de DOM que causavam erros de referência null
+
+**Commits desta sessão:**
+- `9ec0a9a` - Add null check for navigator.mediaDevices
+- `cc542be` - Remove setTimeout delay and improve error message
+- `8df47c5` - Add timeout to camera request (10 segundos)
+- `054a480` - Use addEventListener instead of onclick
+- `d65b5e4` - Remove status update attempts (null reference)
+- `c115b1d` - Remove vercel.json
+- `b81df5d` - Throw MediaPipe error instead of silent fail
+
+**Status:** ✅ CÂMERA FUNCIONANDO EM iOS!
+
+**Pendente para Próxima Sessão:**
+- [ ] Remover popups de debug (alerts)
+- [ ] Ajustar detalhes do protocolo final
+- [ ] Testar fluxo completo Q1→Q2→Q3→Q4 no iOS
+- [ ] Gerar PDF e validar conteúdo
+
+---
 
 ### 🔧 BUGS CRÍTICOS FIXADOS - SESSÃO 26/05/2026 (MADRUGADA - PARTE 2)
 
