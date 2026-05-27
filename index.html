@@ -790,22 +790,7 @@
         return;
       }
       usuariaData.desconforto = desconforto;
-
-      // Mostrar mensagem personalizada antes de abrir câmera
-      const conteudo = document.getElementById('conteudo-q1');
-      conteudo.innerHTML = `
-        <div style="max-width: 600px; margin: 60px auto; text-align: center;">
-          <h2 style="color: #E85D9F; margin-bottom: 20px; font-size: 1.5rem;">✓ Perfeito, ${usuariaData.nome}!</h2>
-          <p style="color: #aaa; margin-bottom: 10px; font-size: 1.1rem;">Sua informações foram registradas:</p>
-          <div style="background: rgba(232, 93, 159, 0.1); border: 1px solid rgba(232, 93, 159, 0.3); border-radius: 12px; padding: 20px; margin: 20px 0; color: #ccc;">
-            <p><strong>Nome:</strong> ${usuariaData.nome}</p>
-            <p><strong>Formato do Rosto:</strong> ${usuariaData.formato}</p>
-            <p><strong>Desconforto:</strong> ${usuariaData.desconforto}</p>
-          </div>
-          <p style="color: #aaa; margin: 20px 0;">Agora vamos capturar sua foto!</p>
-          <button class="quadrante-btn" onclick="abrirQuadrante1()" style="width: 100%; padding: 12px;">📸 Abrir Câmera</button>
-        </div>
-      `;
+      abrirQuadrante1();
     }
 
     function fecharPainel(num) {
