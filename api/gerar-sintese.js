@@ -7,9 +7,9 @@
  * Retorna recomendação + PDF
  */
 
-import Anthropic from "@anthropic-ai/sdk";
+const Anthropic = require("@anthropic-ai/sdk");
 
-const client = new Anthropic();
+const client = new Anthropic.default();
 
 const systemPromptIABeauty = `Você é um especialista em VISAGISMO e ANÁLISE FACIAL focado em recomendações de CORTE DE CABELO.
 
@@ -57,7 +57,7 @@ Gere em MARKDOWN com:
 
 NUNCA diga "certo" ou "errado". SEMPRE explique consequências visuais. SEMPRE conecte com dados recebidos.`;
 
-export default async function handler(req, res) {
+module.exports = async function handler(req, res) {
   if (req.method !== "POST") {
     return res.status(405).json({ error: "Method not allowed" });
   }
