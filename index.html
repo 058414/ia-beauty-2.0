@@ -819,9 +819,18 @@
             <p><strong>Desconforto:</strong> ${usuariaData.desconforto}</p>
           </div>
           <p style="color: #aaa; margin: 20px 0;">Agora vamos capturar sua foto!</p>
-          <button class="quadrante-btn" onclick="abrirQuadrante1()" style="width: 100%; padding: 12px;">📸 Abrir Câmera</button>
+          <button type="button" id="btn-abrir-camera-ios" class="quadrante-btn" style="width: 100%; padding: 12px;">📸 Abrir Câmera</button>
         </div>
       `;
+
+      // Attach event listener (mais confiável em iOS Safari)
+      setTimeout(() => {
+        const btnCamera = document.getElementById('btn-abrir-camera-ios');
+        if (btnCamera) {
+          btnCamera.addEventListener('click', abrirQuadrante1);
+          console.log('✅ Event listener attached to camera button');
+        }
+      }, 0);
     }
 
     function fecharPainel(num) {
