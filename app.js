@@ -61,7 +61,7 @@ Comece caloroso e conversacional, resumindo tudo que ela explorou em cada quadra
 
 ### 6. 🔗 SISTEMA INTEGRADO — COMO TUDO SE CONECTA
 - Sua fórmula visual (assimetria + biotipo + linhas + essência)
-- CORTE (elementos estruturais, NUNCA nomes)
+- CORTE
 - LUZ & SOMBRA (como usar cores/mechas a seu favor — NÃO para rosto)
 - GOLA, ADEREÇOS, FRANJA, CINTO, SOBRANCELHAS (integrados)
 
