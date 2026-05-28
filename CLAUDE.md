@@ -2,10 +2,10 @@
 
 ## ✅ Status do Projeto
 
-- **Status:** 🟢 Q1, Q2, Q3, Q4 COMPLETOS + CÂMERA iOS CORRIGIDA
-- **Última atualização:** 2026-05-27 (Madrugada - Câmera iOS Funcionando)
-- **Commit:** b81df5d (fix: Throw MediaPipe error instead of returning silently)
-- **URL Produção:** https://ia-beauty-20-novo.vercel.app ✅ FUNCIONANDO
+- **Status:** 🟢 IA BEAUTY 2.0 COMPLETO — Protocol + PDF + Domain Prep
+- **Última atualização:** 2026-05-27 (Noite - Protocol & PDF Finalizados)
+- **Último Commit:** 7ec7a6c (fix: Remove parenthetical from CORTE section header)
+- **URL Produção:** https://ia-beauty-20.vercel.app ✅ RODANDO
 - **GitHub:** https://github.com/058414/ia-beauty-2.0 ✅ SINCRONIZADO
 - **Status Atual:** 
   - ✅ Câmera operacional em DESKTOP e iOS (MediaPipe FaceLandmarker 468 pontos)
@@ -46,6 +46,48 @@
 - `b81df5d` - Throw MediaPipe error instead of silent fail
 
 **Status:** ✅ CÂMERA FUNCIONANDO EM iOS!
+
+---
+
+## 🚀 SESSÃO 27/05/2026 (NOITE) — PROTOCOLO DENSO + PDF + PREPARAÇÃO PARA DOMÍNIO
+
+### ✨ IMPLEMENTADO NESTA SESSÃO
+
+**1. System Prompt Reescrito (COMPLETO)**
+   - ✅ Protocol DENSO, WARM, EDUCACIONAL consolidando TUDO dos 4 quadrantes
+   - ✅ Ensina CLIENTE como USAR cada elemento (não recomenda cortes)
+   - ✅ ZERO nomes de cortes ou medidas em cm
+   - ✅ Luz/Sombra integrado em gola/corpo/adereços/franja/sobrancelhas (NÃO para rosto)
+   - ✅ Mensagem final empoderada: "Você é a maestrina... Cada escolha agora é consciente..."
+
+**2. Ambiente & Deploy**
+   - ✅ Arquivo `.env` criado com ANTHROPIC_API_KEY
+   - ✅ Dependência `dotenv` instalada
+   - ✅ `app.js` carregando `.env` automaticamente
+   - ✅ API Key protegida (não rastreada no Git)
+
+**3. PDF Download**
+   - ✅ Botão "📥 Baixar Protocolo em PDF" adicionado embaixo do protocolo
+   - ✅ Funcionalidade `gerarPDF()` já existente via jsPDF
+   - ✅ Download funciona no final do protocolo
+
+**4. UI/UX Refinements**
+   - ✅ Removidos parênteses desnecessários do título de seções
+   - ✅ Botão de download com styling gradiente
+   - ✅ Layout limpo e intuitivo
+
+### 📋 Commits desta sessão
+- `e2c075e` - feat: Complete IA BEAUTY 2.0 - Dense educational protocol + PDF download
+- `93ea9e7` - fix: Complete final message in protocol
+- `7ec7a6c` - fix: Remove parenthetical from CORTE section header
+
+### 🎯 PRÓXIMA SESSÃO (28/05/2026)
+**PREPARAÇÃO PARA DOMÍNIO + LANDING PAGE**
+- [ ] Adicionar domínio customizado (ao invés de vercel.app)
+- [ ] Criar Landing Page (LP) — showcase visual + depoimentos
+- [ ] Integração com Kiwify/Hotmart (se necessário)
+- [ ] SEO básico e meta tags
+- [ ] Testar em produção com domínio real
 
 **Pendente para Próxima Sessão:**
 - [ ] Remover popups de debug (alerts)
