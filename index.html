@@ -298,29 +298,18 @@
   <script src="lib/quadrante-4.js"></script>
   <script>
     // Estado global para armazenar dados da usuária
-    // Carrega do localStorage se existir, senão cria novo
-    let usuariaData = JSON.parse(localStorage.getItem('usuariaData')) || {
+    let usuariaData = {
       nome: '',
       formato: '',
       desconforto: '',
       essencia: '',
       contexto: '',
       versaoEscolhida: '',
-      q1FotoCaptured: false,
-      q2Completo: false,
       assimetria: {
         lado_alto: 'direito',
         lado_baixo: 'esquerdo',
         diferenca: 0
-      },
-      rosto: {},
-      corpo: {}
-    };
-
-    // Função para salvar usuariaData no localStorage
-    function salvarUsuariaData() {
-      localStorage.setItem('usuariaData', JSON.stringify(usuariaData));
-      console.log('usuariaData salvo no localStorage', usuariaData);
+      }
     };
 
     // REFLEXÃO SER vs ESTAR — ROBUSTA
@@ -532,7 +521,6 @@
 
     function selecionarVersao(tipo) {
       usuariaData.versaoEscolhida = tipo;
-      salvarUsuariaData();
       mostrarConfirmacaoFinal();
     }
 
@@ -688,10 +676,6 @@
     }
 
     function finalizarReflexao() {
-      // CRÍTICO: Marcar Q1 como completo
-      usuariaData.q1FotoCaptured = true;
-      salvarUsuariaData();
-
       fecharPainel(1);
       atualizarStatusBadge(1);
       // Abrir Q2 automaticamente após reflexão
@@ -806,45 +790,13 @@
         return;
       }
       usuariaData.desconforto = desconforto;
-
-      // Mostrar mensagem personalizada antes de abrir câmera
-      const conteudo = document.getElementById('conteudo-q1');
-      conteudo.innerHTML = `
-        <div style="max-width: 600px; margin: 60px auto; text-align: center;">
-          <h2 style="color: #E85D9F; margin-bottom: 20px; font-size: 1.5rem;">✓ Perfeito, ${usuariaData.nome}!</h2>
-          <p style="color: #aaa; margin-bottom: 10px; font-size: 1.1rem;">Sua informações foram registradas:</p>
-          <div style="background: rgba(232, 93, 159, 0.1); border: 1px solid rgba(232, 93, 159, 0.3); border-radius: 12px; padding: 20px; margin: 20px 0; color: #ccc;">
-            <p><strong>Nome:</strong> ${usuariaData.nome}</p>
-            <p><strong>Formato do Rosto:</strong> ${usuariaData.formato}</p>
-            <p><strong>Desconforto:</strong> ${usuariaData.desconforto}</p>
-          </div>
-          <p style="color: #aaa; margin: 20px 0;">Agora vamos capturar sua foto!</p>
-          <button type="button" id="btn-abrir-camera-ios" class="quadrante-btn" style="width: 100%; padding: 12px;">📸 Abrir Câmera</button>
-        </div>
-      `;
-
-      // Attach event listener (mais confiável em iOS Safari)
-      setTimeout(() => {
-        const btnCamera = document.getElementById('btn-abrir-camera-ios');
-        if (btnCamera) {
-          btnCamera.addEventListener('click', abrirQuadrante1);
-          btnCamera.addEventListener('touchstart', abrirQuadrante1);
-          console.log('✅ Event listeners attached to camera button');
-          alert('✅ Botão pronto para clicar!');
-        } else {
-          alert('❌ ERRO: Botão não encontrado no DOM!');
-          console.error('Botão com ID btn-abrir-camera-ios não encontrado');
-        }
-      }, 100);
+      abrirQuadrante1();
     }
 
     function fecharPainel(num) {
       document.getElementById(`painel-q${num}`).classList.remove('visible');
       if (num === 1) pararCamera();
     }
-
-    // NOTE: abrirQuadrante4() is now defined in lib/quadrante-4.js
-    // Removed duplicate definition that was overriding the correct implementation
   </script>
 
 </body>
