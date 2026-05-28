@@ -1,0 +1,557 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Quiz + Tabela de Compensação Visual | IA BEAUTY 2.0</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 16px;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+            overflow: hidden;
+        }
+
+        .header {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 40px;
+            text-align: center;
+        }
+
+        .header h1 {
+            font-size: 2.5em;
+            margin-bottom: 10px;
+        }
+
+        .header p {
+            font-size: 1.1em;
+            opacity: 0.9;
+        }
+
+        .content {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 40px;
+            padding: 40px;
+        }
+
+        @media (max-width: 1024px) {
+            .content {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        .quiz-section h2 {
+            color: #333;
+            margin-bottom: 30px;
+            font-size: 1.5em;
+        }
+
+        .question {
+            margin-bottom: 30px;
+            padding: 20px;
+            background: #f8f9ff;
+            border-radius: 8px;
+            border-left: 4px solid #667eea;
+        }
+
+        .question label {
+            display: block;
+            font-weight: 600;
+            color: #333;
+            margin-bottom: 15px;
+            font-size: 1.05em;
+        }
+
+        .options {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+
+        .option {
+            display: flex;
+            align-items: center;
+            padding: 12px;
+            border-radius: 6px;
+            cursor: pointer;
+            background: white;
+            border: 2px solid #e0e0e0;
+            transition: all 0.3s ease;
+        }
+
+        .option:hover {
+            background: #f0f0ff;
+            border-color: #667eea;
+        }
+
+        .option input[type="radio"] {
+            margin-right: 12px;
+            cursor: pointer;
+            width: 18px;
+            height: 18px;
+        }
+
+        .option input[type="radio"]:checked {
+            accent-color: #667eea;
+        }
+
+        .option.selected {
+            background: #e8ebff;
+            border-color: #667eea;
+            font-weight: 600;
+        }
+
+        .tabela-section h2 {
+            color: #333;
+            margin-bottom: 20px;
+            font-size: 1.5em;
+        }
+
+        .tabela-compensacao {
+            border-collapse: collapse;
+            width: 100%;
+            font-size: 0.95em;
+        }
+
+        .tabela-compensacao thead {
+            background: #667eea;
+            color: white;
+        }
+
+        .tabela-compensacao th {
+            padding: 15px;
+            text-align: left;
+            font-weight: 600;
+        }
+
+        .tabela-compensacao td {
+            padding: 15px;
+            border-bottom: 1px solid #e0e0e0;
+            background: white;
+        }
+
+        .tabela-compensacao tbody tr:nth-child(even) td {
+            background: #f8f9ff;
+        }
+
+        .tabela-compensacao tbody tr:hover td {
+            background: #eff0ff;
+        }
+
+        .analise-label {
+            font-weight: 600;
+            color: #667eea;
+            margin-bottom: 5px;
+        }
+
+        .diagnostico {
+            color: #333;
+            font-weight: 500;
+        }
+
+        .compensacao {
+            color: #28a745;
+            font-weight: 500;
+        }
+
+        .aplicacao {
+            color: #0066cc;
+        }
+
+        .evitar {
+            color: #dc3545;
+            font-weight: 500;
+        }
+
+        .sintese-final {
+            background: linear-gradient(135deg, #667eea15 0%, #764ba215 100%);
+            border: 2px solid #667eea;
+        }
+
+        .sintese-final td {
+            font-weight: 600;
+        }
+
+        .empty-state {
+            grid-column: 1 / -1;
+            text-align: center;
+            padding: 60px 20px;
+            color: #999;
+        }
+
+        .empty-state p {
+            font-size: 1.1em;
+        }
+
+        button {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 12px 24px;
+            border: none;
+            border-radius: 6px;
+            font-size: 1em;
+            cursor: pointer;
+            transition: transform 0.3s ease;
+            margin-top: 20px;
+        }
+
+        button:hover {
+            transform: translateY(-2px);
+        }
+
+        button:active {
+            transform: translateY(0);
+        }
+
+        .footer {
+            background: #f8f9ff;
+            padding: 20px;
+            text-align: center;
+            color: #666;
+            border-top: 1px solid #e0e0e0;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>🎨 IA BEAUTY 2.0</h1>
+            <p>Quiz + Tabela de Compensação Visual</p>
+        </div>
+
+        <div class="content" id="content">
+            <div class="empty-state">
+                <p>Carregando quiz...</p>
+            </div>
+        </div>
+
+        <div class="footer">
+            <p>✨ Análise Visual Personalizada | Bruno Alves Visagismo</p>
+        </div>
+    </div>
+
+    <script>
+        // Estado global
+        const state = {
+            nome: '',
+            assimetria: null,
+            linhasRosto: null,
+            linhasCorpo: null,
+            biotipo: null,
+            franja: null,
+            tomPele: null,
+        };
+
+        // Definições das perguntas
+        const questions = [
+            {
+                id: 'assimetria',
+                label: 'P1: Qual lado do seu rosto você vê mais alto/proeminente?',
+                options: [
+                    { value: 'esquerdo', label: 'Lado esquerdo' },
+                    { value: 'direito', label: 'Lado direito' },
+                    { value: 'equilibrado', label: 'Parecem iguais' }
+                ]
+            },
+            {
+                id: 'linhasRosto',
+                label: 'P2: Que linhas predominam no seu rosto?',
+                options: [
+                    { value: 'retas', label: 'Retas/angulosas' },
+                    { value: 'curvas', label: 'Curvas/arredondadas' },
+                    { value: 'mistura', label: 'Mistura de ambas' }
+                ]
+            },
+            {
+                id: 'biotipo',
+                label: 'P3: Qual seu biotipo?',
+                options: [
+                    { value: 'retangulo', label: 'Retângulo (reto de cima a baixo)' },
+                    { value: 'pera', label: 'Pêra (estreito em cima, largo em baixo)' },
+                    { value: 'triangulo', label: 'Triângulo invertido (largo em cima)' },
+                    { value: 'ampulheta', label: 'Ampulheta (curvas bem definidas)' },
+                    { value: 'oval', label: 'Oval (proporcionado)' }
+                ]
+            },
+            {
+                id: 'linhasCorpo',
+                label: 'P4: Que linhas predominam no seu corpo?',
+                options: [
+                    { value: 'retas', label: 'Retas' },
+                    { value: 'curvas', label: 'Curvas' },
+                    { value: 'mistura', label: 'Mistura' }
+                ]
+            },
+            {
+                id: 'franja',
+                label: 'P5: Você usa franja ou gostaria de usar?',
+                options: [
+                    { value: 'sim-reta', label: 'Sim, franja reta' },
+                    { value: 'sim-concava', label: 'Sim, franja côncava' },
+                    { value: 'nao', label: 'Não uso franja' },
+                    { value: 'gostaria', label: 'Gostaria de usar' }
+                ]
+            },
+            {
+                id: 'tomPele',
+                label: 'P6: Como sua pele reage ao sol?',
+                options: [
+                    { value: 'quente', label: 'Bronzeia fácil (tons quentes)' },
+                    { value: 'fria', label: 'Fica vermelha (tons frios)' },
+                    { value: 'escura', label: 'Pele negra/escura' }
+                ]
+            }
+        ];
+
+        // Mapeamento de lógica de compensação
+        const compensacaoLogica = {
+            assimetria: {
+                esquerdo: {
+                    analise: 'Assimetria Facial',
+                    diagnostico: 'Lado esquerdo mais alto',
+                    compensacao: 'Posicionar cabelo para EXPOR lado direito (mais baixo)',
+                    aplicacao: 'Jogar cabelo para trás do lado esquerdo, deixar direito em destaque',
+                    evitar: 'Franja que cobre lado direito ou volume do lado direito'
+                },
+                direito: {
+                    analise: 'Assimetria Facial',
+                    diagnostico: 'Lado direito mais alto',
+                    compensacao: 'Posicionar cabelo para EXPOR lado esquerdo (mais baixo)',
+                    aplicacao: 'Jogar cabelo para trás do lado direito, deixar esquerdo em destaque',
+                    evitar: 'Franja que cobre lado esquerdo ou volume do lado esquerdo'
+                },
+                equilibrado: {
+                    analise: 'Assimetria Facial',
+                    diagnostico: 'Rosto equilibrado',
+                    compensacao: 'Usar simetria a favor ou adicionar elemento assimétrico para dinamismo',
+                    aplicacao: 'Pode usar franja simétrica ou jogar cabelo para um lado conforme contexto',
+                    evitar: 'Excessiva falta de movimento'
+                }
+            },
+            linhasRosto: {
+                retas: {
+                    analise: 'Linhas do Rosto',
+                    diagnostico: 'Predominam linhas retas/angulosas',
+                    compensacao: 'Quebrar monotonia com curvas ou diagonais',
+                    aplicacao: 'Considerar cortes com movimento, mechas que criam diagonal',
+                    evitar: 'Tudo reto (franja reta + gola quadrada + cabelo preso)'
+                },
+                curvas: {
+                    analise: 'Linhas do Rosto',
+                    diagnostico: 'Predominam linhas curvas/arredondadas',
+                    compensacao: 'Adicionar retas ou diagonais para equilibrar',
+                    aplicacao: 'Considerar franja reta, gola em V, linhas mais definidas no corte',
+                    evitar: 'Tudo redondo (gola U + brinco redondo + muita onda)'
+                },
+                mistura: {
+                    analise: 'Linhas do Rosto',
+                    diagnostico: 'Mistura de linhas retas e curvas',
+                    compensacao: 'Manter equilíbrio visual com um elemento predominante',
+                    aplicacao: 'Escolher se acentua retas ou curvas e compensar no corte',
+                    evitar: 'Sobrecarregar com muitos elementos conflitantes'
+                }
+            },
+            biotipo: {
+                retangulo: {
+                    analise: 'Biotipo + Corpo',
+                    diagnostico: 'Retângulo (reto de cima a baixo)',
+                    compensacao: 'Criar curva ou diagonal na cintura/quadril para definição',
+                    aplicacao: 'Corte com movimento, volume na cintura ou diagonal no comprimento',
+                    evitar: 'Silhueta totalmente reta (cabelo muito preso)'
+                },
+                pera: {
+                    analise: 'Biotipo + Corpo',
+                    diagnostico: 'Pêra (estreito em cima, largo em baixo)',
+                    compensacao: 'Expandir ombros visualmente para equilibrar quadril',
+                    aplicacao: 'Volume em cima, comprimento mais curto ou com movimento',
+                    evitar: 'Cabelo muito preso ou sem volume nos ombros'
+                },
+                triangulo: {
+                    analise: 'Biotipo + Corpo',
+                    diagnostico: 'Triângulo invertido (largo em cima, estreito em baixo)',
+                    compensacao: 'Expandir quadril, afinar ombros visualmente',
+                    aplicacao: 'Comprimento alongado, gola em V para afinar, volume embaixo',
+                    evitar: 'Gola quadrada (reforça largura de ombros)'
+                },
+                ampulheta: {
+                    analise: 'Biotipo + Corpo',
+                    diagnostico: 'Ampulheta (curvas bem definidas)',
+                    compensacao: 'Celebrar e reforçar as curvas',
+                    aplicacao: 'Corte que marca a cintura, volume nos pontos certos',
+                    evitar: 'Silhueta reta que apaga as curvas naturais'
+                },
+                oval: {
+                    analise: 'Biotipo + Corpo',
+                    diagnostico: 'Oval (proporcionado)',
+                    compensacao: 'Usar como ponto de equilíbrio, adicionar elementos que harmonizam',
+                    aplicacao: 'Flexibilidade com cortes variados, foco em outros fatores',
+                    evitar: 'Nada específico, corpo está bem proporcionado'
+                }
+            },
+            linhasCorpo: {
+                retas: {
+                    analise: 'Linhas do Corpo',
+                    diagnostico: 'Corpo com linhas retas',
+                    compensacao: 'Adicionar curvas ou movimento visual',
+                    aplicacao: 'Corte com movimento, mechas que quebram a reta',
+                    evitar: 'Amplificar ainda mais as retas'
+                },
+                curvas: {
+                    analise: 'Linhas do Corpo',
+                    diagnostico: 'Corpo com linhas curvas',
+                    compensacao: 'Pode celebrar ou adicionar reta para equilíbrio',
+                    aplicacao: 'Escolha conforme preferência e biotipo',
+                    evitar: 'Excesso de curvas que fica pesado'
+                },
+                mistura: {
+                    analise: 'Linhas do Corpo',
+                    diagnostico: 'Corpo com linhas mistas',
+                    compensacao: 'Manter harmonia com elementos equilibrados',
+                    aplicacao: 'Considerar o biotipo e compensar onde necessário',
+                    evitar: 'Conflito visual de muitos elementos'
+                }
+            },
+            franja: {
+                'sim-reta': {
+                    analise: 'Franja/Adereços',
+                    diagnostico: 'Usa franja reta',
+                    compensacao: 'Compensar com gola diferente (V ou diagonal, NÃO quadrada)',
+                    aplicacao: 'Se franja reta, use gola em V para quebrar duas retas',
+                    evitar: 'Franja reta + gola quadrada (duas retas na mesma altura)'
+                },
+                'sim-concava': {
+                    analise: 'Franja/Adereços',
+                    diagnostico: 'Usa franja côncava',
+                    compensacao: 'Mais flexível, mas considerar gola em V',
+                    aplicacao: 'Franja côncava permite mais variedade de gola',
+                    evitar: 'Excessivo de movimento'
+                },
+                nao: {
+                    analise: 'Franja/Adereços',
+                    diagnostico: 'Não usa franja',
+                    diagnostico: 'Não usa franja, expõe testa completamente',
+                    compensacao: 'Considerar impacto visual da testa exposta',
+                    aplicacao: 'Se testa pequena, ok. Se grande, considerar franja',
+                    evitar: 'Deixar testa exposta se isso incomoda'
+                },
+                gostaria: {
+                    analise: 'Franja/Adereços',
+                    diagnostico: 'Gostaria de usar franja',
+                    compensacao: 'Recomendar tipo baseado em linhas do rosto',
+                    aplicacao: 'Se linhas retas → franja côncava; se curvas → franja reta',
+                    evitar: 'Tipo genérico sem considerar seu rosto'
+                }
+            }
+        };
+
+        // Renderizar quiz
+        function renderQuiz() {
+            const content = document.getElementById('content');
+            let html = '<div class="quiz-section">';
+            html += '<h2>📋 Responda as Perguntas</h2>';
+
+            questions.forEach(q => {
+                html += `
+                    <div class="question">
+                        <label>${q.label}</label>
+                        <div class="options">
+                            ${q.options.map(opt => `
+                                <label class="option">
+                                    <input type="radio" name="${q.id}" value="${opt.value}" onchange="updateState('${q.id}', '${opt.value}')">
+                                    <span>${opt.label}</span>
+                                </label>
+                            `).join('')}
+                        </div>
+                    </div>
+                `;
+            });
+
+            html += '</div><div class="tabela-section" id="tabelaContainer"></div>';
+            content.innerHTML = html;
+
+            renderTabela();
+        }
+
+        // Atualizar estado
+        function updateState(field, value) {
+            state[field] = value;
+            renderTabela();
+        }
+
+        // Renderizar tabela
+        function renderTabela() {
+            const container = document.getElementById('tabelaContainer');
+            let html = '<h2>📊 Tabela de Compensação Visual</h2>';
+
+            const linhasAtivas = [];
+
+            if (state.assimetria) linhasAtivas.push({ tipo: 'assimetria', valor: state.assimetria });
+            if (state.linhasRosto) linhasAtivas.push({ tipo: 'linhasRosto', valor: state.linhasRosto });
+            if (state.biotipo) linhasAtivas.push({ tipo: 'biotipo', valor: state.biotipo });
+            if (state.linhasCorpo) linhasAtivas.push({ tipo: 'linhasCorpo', valor: state.linhasCorpo });
+            if (state.franja) linhasAtivas.push({ tipo: 'franja', valor: state.franja });
+
+            if (linhasAtivas.length === 0) {
+                html += '<p style="color: #999; text-align: center; padding: 40px;">Responda as perguntas para ver a análise personalizada...</p>';
+            } else {
+                html += '<table class="tabela-compensacao">';
+                html += '<thead><tr><th>Análise</th><th>Diagnóstico</th><th>Compensação Visual</th><th>Aplicação Prática</th><th>O que Evitar</th></tr></thead><tbody>';
+
+                linhasAtivas.forEach(linha => {
+                    const dados = compensacaoLogica[linha.tipo]?.[linha.valor];
+                    if (dados) {
+                        html += `
+                            <tr>
+                                <td><span class="analise-label">${dados.analise}</span></td>
+                                <td><span class="diagnostico">${dados.diagnostico}</span></td>
+                                <td><span class="compensacao">${dados.compensacao}</span></td>
+                                <td><span class="aplicacao">${dados.aplicacao}</span></td>
+                                <td><span class="evitar">${dados.evitar}</span></td>
+                            </tr>
+                        `;
+                    }
+                });
+
+                // Síntese final
+                if (linhasAtivas.length >= 3) {
+                    html += `
+                        <tr class="sintese-final">
+                            <td colspan="5">
+                                <span class="analise-label">🎯 SÍNTESE FINAL</span><br>
+                                Sua combinação única: ${state.assimetria || '-'} + ${state.linhasRosto || '-'} + ${state.biotipo || '-'}
+                                <br><br>
+                                Recomendação: Combinar todos os fatores acima para criar um corte personalizado que trabalha com sua assimetria,
+                                linhas do rosto e corpo de forma harmoniosa.
+                            </td>
+                        </tr>
+                    `;
+                }
+
+                html += '</tbody></table>';
+            }
+
+            container.innerHTML = html;
+        }
+
+        // Inicializar
+        renderQuiz();
+    </script>
+</body>
+</html>
