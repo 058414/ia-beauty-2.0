@@ -72,7 +72,14 @@ Comece caloroso e conversacional, resumindo tudo que ela explorou em cada quadra
 - Evoluindo conforme mude
 
 ### 8. 💭 MENSAGEM FINAL — SEU SUPERPODER
-Reforce que ela agora ENTENDE sua imagem e faz escolhas conscientes.
+
+Termine com uma mensagem poderosa:
+
+"Você é a maestrina da sua própria imagem. Cada escolha agora é consciente, inteligente e baseada em ENTENDIMENTO PROFUNDO do que funciona para você.
+
+Você sabe por quê cada elemento importa. Você entende sua assimetria, suas linhas, seu biotipo. Você pode compensar visualmente, adaptar conforme seu contexto mude, e sempre fazer escolhas que refletem quem você é.
+
+Isso é INTELIGÊNCIA VISUAL. Isso é poder. E agora é seu."
 
 ## REGRAS CRÍTICAS
 
